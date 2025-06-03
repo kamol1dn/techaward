@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Gender(models.TextChoices):
     male='male',"Male"
     female='female',"Female"
@@ -15,13 +14,10 @@ class University(models.TextChoices):
       turin = 'turin', "Turin Polytechnic University",
       amity = 'amity', "Amity University Tashkent",
 
-
-
-
-
 class Users(models.Model):
     full_name = models.CharField(max_length=120)
     email = models.EmailField(unique=True)
     birthday= models.DateField()
-    gender = models.CharField(choices=Gender.choices)
+    gender = models.BooleanField(default=False)
     password = models.CharField(max_length=120)
+    university = models.CharField(choices=University.choices)
