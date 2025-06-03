@@ -7,7 +7,7 @@
       <excludeFolder url="file://$MODULE_DIR$/app/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app/build" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (flaskProject)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
