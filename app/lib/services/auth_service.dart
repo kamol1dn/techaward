@@ -35,7 +35,10 @@ class AuthService {
     }
   }
 
+  static const bool testMode = true;
+
   static Future<List<University>> getUniversities() async {
+
     try {
       // First check cached universities
       List<University> cachedUniversities = await StorageService.getUniversities();
@@ -50,6 +53,7 @@ class AuthService {
     } catch (e) {
       throw Exception('Failed to load universities: ${e.toString()}');
     }
+
   }
 
   static Future<bool> sendOtp(String email) async {

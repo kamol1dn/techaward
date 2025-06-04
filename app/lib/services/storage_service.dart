@@ -41,8 +41,18 @@ class StorageService {
         .toList();
     await prefs.setStringList(_universitiesKey, universityJsonList);
   }
-
+  static const bool testMode = true;
   static Future<List<University>> getUniversities() async {
+    if (testMode) {
+      // Dummy data for testing
+      return [
+        University(id: '1', name: 'Test University A'),
+        University(id: '2', name: 'Test University B'),
+        University(id: '3', name: 'Test University C'),
+      ];
+    }
+
+
     final prefs = await SharedPreferences.getInstance();
     final List<String>? universityJsonList = prefs.getStringList(_universitiesKey);
     if (universityJsonList != null) {

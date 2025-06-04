@@ -60,11 +60,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> loadUniversities() async {
+    bool testMode = false;
+    if (!testMode){
     try {
       _universities = await AuthService.getUniversities();
       notifyListeners();
     } catch (e) {
       // Handle error
+    }
     }
   }
 
