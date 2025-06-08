@@ -1,40 +1,40 @@
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'providers/auth_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
-import 'utils/constants.dart';
+import 'services/storage_service.dart';
+import 'services/api_service.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await StorageService.init();
+  runApp(EmergencyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
+class EmergencyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AuthProvider(),
-      child: MaterialApp(
-        title: 'Auth App',
-        theme: ThemeData(
-          primaryColor: AppColors.primaryColor,
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
-          useMaterial3: true,
-        ),
-        home: Consumer<AuthProvider>(
-          builder: (context, authProvider, child) {
-            if (authProvider.isLoading) {
-              return const CircularProgressIndicator();
-            }
-            return authProvider.isAuthenticated
-                ? const MainScreen()
-                : const SplashScreen();
-          },
-        ),
+    return MaterialApp(
+      title: 'Emergency Services',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+        fontFamily: 'Roboto',
+      ),
+      home: FutureBuilder<bool>(
+        future: _checkFirstTime(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          return snapshot.data == true ? SplashScreen() : MainScreen();
+        },
       ),
     );
+  }
+
+  Future<bool> _checkFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !prefs.containsKey('user_token');
   }
 }

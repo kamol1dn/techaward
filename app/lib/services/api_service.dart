@@ -1,75 +1,92 @@
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
-import '../models/university_model.dart';
-import '../utils/constants.dart';
+import '../models/emergency_request.dart';
+import '../data/dummy_data.dart';
 
 class ApiService {
-  static Future<Map<String, dynamic>> login(String email, String password) async {
+  static const String baseUrl = 'https://api.emergency-services.uz';
+  static bool useTestServer = true; // Toggle for test server simulation
+
+  static Future<Map<String, dynamic>> login(String login, String password) async {
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1)); // Simulate network delay
+      return DummyData.simulateLogin(login, password);
+    }
+
     final response = await http.post(
-      Uri.parse(ApiEndpoints.login),
+      Uri.parse('$baseUrl/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'login': login, 'password': password}),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> sendOtp(String phone) async {
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateSendOtp(phone);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/send-otp'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'phone': phone}),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateVerifyOtp(phone, otp);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/verify-otp'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'phone': phone, 'otp': otp}),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> completeRegistration(
+      PersonalData personal,
+      MedicalData medical
+      ) async {
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 2));
+      return DummyData.simulateRegistration(personal, medical);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'email': email,
-        'password': password,
+        'personal': personal.toJson(),
+        'medical': medical.toJson(),
       }),
     );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Login failed: ${response.body}');
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> sendEmergencyRequest(EmergencyRequest request) async {
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 2));
+      return DummyData.simulateEmergencyRequest(request);
     }
-  }
 
-  static Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
     final response = await http.post(
-      Uri.parse(ApiEndpoints.register),
+      Uri.parse('$baseUrl/emergency/request'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(userData),
+      body: jsonEncode(request.toJson()),
     );
 
-    if (response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Registration failed: ${response.body}');
-    }
-  }
-
-  static Future<bool> sendOtp(String email) async {
-    final response = await http.post(
-      Uri.parse(ApiEndpoints.sendOtp),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email}),
-    );
-
-    return response.statusCode == 200;
-  }
-
-  static Future<bool> verifyOtp(String email, String otp) async {
-    final response = await http.post(
-      Uri.parse(ApiEndpoints.verifyOtp),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'otp': otp,
-      }),
-    );
-
-    return response.statusCode == 200;
-  }
-
-  static Future<List<University>> getUniversities() async {
-    final response = await http.get(
-      Uri.parse(ApiEndpoints.universities),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => University.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load universities');
-    }
+    return jsonDecode(response.body);
   }
 }

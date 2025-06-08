@@ -1,48 +1,51 @@
 
-class User {
-  final String id;
-  final String firstName;
-  final String lastName;
-  final String email;
-  final DateTime dateOfBirth;
+class PersonalData {
+  final String phone;
+  final String name;
+  final String surname;
+  final int age;
   final String gender;
-  final String universityId;
-  final String universityName;
+  final String passport;
+  final String password;
 
-  User({
-    required this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.dateOfBirth,
+  PersonalData({
+    required this.phone,
+    required this.name,
+    required this.surname,
+    required this.age,
     required this.gender,
-    required this.universityId,
-    required this.universityName,
+    required this.passport,
+    required this.password,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      firstName: json['firstName'],
-      lastName: json['lastName'],
-      email: json['email'],
-      dateOfBirth: DateTime.parse(json['dateOfBirth']),
-      gender: json['gender'],
-      universityId: json['universityId'],
-      universityName: json['universityName'],
-    );
-  }
+  Map<String, dynamic> toJson() => {
+    'phone': phone,
+    'name': name,
+    'surname': surname,
+    'age': age,
+    'gender': gender,
+    'passport': passport,
+    'password': password,
+  };
+}
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'firstName': firstName,
-      'lastName': lastName,
-      'email': email,
-      'dateOfBirth': dateOfBirth.toIso8601String(),
-      'gender': gender,
-      'universityId': universityId,
-      'universityName': universityName,
-    };
-  }
+class MedicalData {
+  final String bloodType;
+  final String allergies;
+  final String illness;
+  final String additionalInfo;
+
+  MedicalData({
+    required this.bloodType,
+    required this.allergies,
+    required this.illness,
+    required this.additionalInfo,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'blood_type': bloodType,
+    'allergies': allergies,
+    'illness': illness,
+    'additional_info': additionalInfo,
+  };
 }
