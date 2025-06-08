@@ -1,13 +1,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'language/language_controller.dart';
 import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'services/storage_service.dart';
 import 'services/api_service.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LanguageController.init();
   await StorageService.init();
   runApp(EmergencyApp());
 }
@@ -16,7 +19,9 @@ class EmergencyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Emergency Services',
+      title: 'Tez Yordam - 84U',
+      // title: LanguageController.get('emergency_title'),
+
       theme: ThemeData(
         primarySwatch: Colors.red,
         fontFamily: 'Roboto',

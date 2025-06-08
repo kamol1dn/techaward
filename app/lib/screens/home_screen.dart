@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'request_help_screen.dart';
 import '../services/connectivity_service.dart';
+import '../language/language_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -26,7 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Emergency Services'),
+        //title: Text('Emergency Services'),
+        title: Text(LanguageController.get('emergency_services')),
         actions: [
           Icon(_isOnline ? Icons.wifi : Icons.wifi_off),
           SizedBox(width: 16),
@@ -45,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Offline Mode - Limited functionality',
+                  LanguageController.get('offline_limited'),
                   style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
@@ -59,25 +61,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSpacing: 16,
                 children: [
                   _buildServiceCard(
-                    'Ambulance',
+                    LanguageController.get('ambulance'),
                     Icons.local_hospital,
                     Colors.red,
                     EmergencyType.ambulance,
                   ),
                   _buildServiceCard(
-                    'Fire',
+                    LanguageController.get('fire'),
                     Icons.local_fire_department,
                     Colors.orange,
                     EmergencyType.fire,
                   ),
                   _buildServiceCard(
-                    'Police',
+                    LanguageController.get('police'),
                     Icons.local_police,
                     Colors.blue,
                     EmergencyType.police,
                   ),
                   _buildServiceCard(
-                    'Others',
+                    LanguageController.get('other'),
                     Icons.more_horiz,
                     Colors.grey,
                     EmergencyType.others,

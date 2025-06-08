@@ -1,12 +1,14 @@
-
 import 'package:flutter/material.dart';
 import '../data/help_data.dart';
+import '../language/language_controller.dart';
 
 class HelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Help & Tutorials')),
+      appBar: AppBar(
+          title: Text(LanguageController.get('help_tutorial')),
+      ),
       body: ListView.builder(
         itemCount: HelpData.topics.length,
         itemBuilder: (context, index) {

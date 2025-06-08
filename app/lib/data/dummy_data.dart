@@ -5,7 +5,7 @@ import '../models/emergency_request.dart';
 class DummyData {
   static Map<String, dynamic> simulateLogin(String login, String password) {
     // Simulate some test users
-    if ((login == 'AD1234567' || login == '+998901234567') && password == 'test123') {
+    if ((login == 'test' || login == 'kamol') && password == '1') {
       return {
         'success': true,
         'token': 'dummy_token_12345',
@@ -27,10 +27,10 @@ class DummyData {
 
   static Map<String, dynamic> simulateVerifyOtp(String phone, String otp) {
     // Accept any 4-digit OTP for testing
-    if (otp.length == 4) {
+    if (otp == '1234') {
       return {
         'success': true,
-        'registration_token': 'reg_token_12345'
+        'registration_token': 'reg_token_1234'
       };
     }
     return {
@@ -42,7 +42,7 @@ class DummyData {
   static Map<String, dynamic> simulateRegistration(PersonalData personal, MedicalData medical) {
     return {
       'success': true,
-      'token': 'user_token_12345',
+      'token': 'user_token_1234',
       'message': 'Registration completed successfully'
     };
   }

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:talaba_plus/language/language_controller.dart';
 import 'register_screen.dart';
 import 'main_screen.dart';
 import '../services/api_service.dart';
@@ -19,7 +20,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(
+          //title: Text('Login')
+        title: Text(LanguageController.get('login')),
+      ),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Form(
@@ -29,29 +33,40 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _loginController,
                 decoration: InputDecoration(
-                  labelText: 'Passport Series or Phone Number',
-                  hintText: 'AD1234567 or +998901234567',
+                  //labelText: 'Passport Series or Phone Number',
+                  //hintText: 'AD1234567 or +998901234567',
+                  labelText: LanguageController.get('passport_or_phone'),
+                  hintText: LanguageController.get('hint_text_passport_phone'),
+
                 ),
                 validator: (value) => value?.isEmpty == true ? 'Required' : null,
               ),
               SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(
+                    labelText: LanguageController.get('password'),
+                ),
                 obscureText: true,
                 validator: (value) => value?.isEmpty == true ? 'Required' : null,
               ),
               SizedBox(height: 32),
+
               _isLoading
                   ? CircularProgressIndicator()
                   : ElevatedButton(
                 onPressed: _login,
-                child: Text('Login'),
+                child: Text(LanguageController.get('login')),
               ),
               SizedBox(height: 16),
+
               TextButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterScreen())),
-                child: Text('Don\'t have an account? Register'),
+                onPressed: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => RegisterScreen())
+                ),
+
+                // child: Text('Don\'t have an account? Register'),
+                child: Text(LanguageController.get('not_account_register'),)
               ),
             ],
           ),
@@ -74,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _showError(result['message']);
       }
     } catch (e) {
-      _showError('Login failed');
+      _showError(LanguageController.get('login_fail'));
     }
 
     setState(() => _isLoading = false);
