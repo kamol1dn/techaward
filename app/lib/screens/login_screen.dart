@@ -82,8 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final result = await ApiService.login(_loginController.text, _passwordController.text);
-      if (result['success']) {
-        await StorageService.saveUserToken(result['token']);
+      print('Login response: $result');
+      if (result.containsKey('access')) {
+        await StorageService.saveUserToken(result['access']);
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MainScreen()));
       } else {
         _showError(result['message']);
