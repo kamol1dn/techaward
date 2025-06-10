@@ -7,6 +7,7 @@ class HelpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
           title: Text(LanguageController.get('help_tutorial')),
       ),
       body: ListView.builder(
@@ -34,7 +35,7 @@ class HelpScreen extends StatelessWidget {
 class HelpDetailScreen extends StatelessWidget {
   final HelpTopic topic;
 
-  HelpDetailScreen({required this.topic});
+  const HelpDetailScreen({required this.topic});
 
   @override
   Widget build(BuildContext context) {

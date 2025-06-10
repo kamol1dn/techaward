@@ -4,7 +4,7 @@ final Map<String, String> uz = {
 
 
   // splash screen
-  'emergency_services': 'Fafvqulotda Xizmatlar',
+  'emergency_services': 'Favqulotda Xizmatlar',
   'login_register': "Kirish / Ro'yxatdan O'tish",
   'quick_numbers': 'Tezkor raqamlar / 1- Yordam Darslari',
   'en': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglizcha',
