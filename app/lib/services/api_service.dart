@@ -6,19 +6,37 @@ import '../models/emergency_request.dart';
 import '../data/dummy_data.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://api.emergency-services.uz';
-  static bool useTestServer = true; // Toggle for test server simulation
+  static const String baseUrl = 'https://9c50-213-230-116-6.ngrok-free.app/api/v1';
+  static bool useTestServer = true;// Toggle for test server simulation
+  static bool online = false;
+  static Future<void> init() async
+  {
+    online = await isServerOnline();
+    if(online)
+      print("Online");
+    useTestServer = !online;
+  }
+  static Future<bool> isServerOnline() async
+  {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/services/hello/'));
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
 
   static Future<Map<String, dynamic>> login(String login, String password) async {
+    await init();
     if (useTestServer) {
       await Future.delayed(Duration(seconds: 1)); // Simulate network delay
       return DummyData.simulateLogin(login, password);
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
+      Uri.parse('$baseUrl/accounts/login/'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'login': login, 'password': password}),
+      body: jsonEncode({'username': login, 'password': password}),
     );
 
     return jsonDecode(response.body);
@@ -58,13 +76,14 @@ class ApiService {
       PersonalData personal,
       MedicalData medical
       ) async {
+    await init();
     if (useTestServer) {
       await Future.delayed(Duration(seconds: 2));
       return DummyData.simulateRegistration(personal, medical);
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/register'),
+      Uri.parse('$baseUrl/services/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'personal': personal.toJson(),

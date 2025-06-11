@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'language/language_controller.dart';
-import 'screens/splash_screen.dart';
+import 'screens/login_register/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'services/storage_service.dart';
 import 'services/api_service.dart';
+
 
 
 void main() async {
@@ -23,6 +24,7 @@ class EmergencyApp extends StatelessWidget {
       // title: LanguageController.get('emergency_title'),
 
       theme: ThemeData(
+        useMaterial3: true,
         primarySwatch: Colors.red,
         fontFamily: 'Roboto',
       ),

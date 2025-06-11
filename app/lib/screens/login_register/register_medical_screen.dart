@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'main_screen.dart';
-import '../models/user_model.dart';
-import '../services/api_service.dart';
-import '../services/storage_service.dart';
+import '../main_screen.dart';
+import '../../models/user_model.dart';
+import '../../services/api_service.dart';
+import '../../services/storage_service.dart';
 
 class RegisterMedicalScreen extends StatefulWidget {
   final PersonalData personalData;
