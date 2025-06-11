@@ -1,4 +1,3 @@
-
 import '../models/user_model.dart';
 import '../models/emergency_request.dart';
 
@@ -9,7 +8,19 @@ class DummyData {
       return {
         'success': true,
         'token': 'dummy_token_12345',
-        'message': 'Login successful'
+        'message': 'Login successful',
+        'user_data': {
+          'name': 'Test',
+          'surname': 'User',
+          'phone': '+998901234567',
+          'age': 25,
+          'gender': 'Male',
+          'passport': 'AD1234567',
+          'blood_type': 'A+',
+          'allergies': 'none',
+          'illness': '',
+          'additional_info': ''
+        }
       };
     }
     return {
