@@ -113,7 +113,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             return NavigationDestination(
               icon: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.all(isSelected ? 8 : 6),
+                padding: EdgeInsets.all(isSelected ? 8 : 8),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? item.color.withOpacity(0.1)
@@ -125,15 +125,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   color: isSelected
                       ? item.color
                       : Colors.grey[600],
-                  size: isSelected ? 26 : 24,
+                  size: isSelected ? 26 : 26,
                 ),
               ),
               selectedIcon: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: item.color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+
                 child: Icon(
                   item.selectedIcon,
                   color: item.color,
