@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/storage_service.dart';
 import '../../language/language_controller.dart';
+import 'edit_settings_screen.dart'; // Import the edit settings screen
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
@@ -26,13 +29,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    final code = prefs.getString('language') ?? 'en';
+    final code = prefs.getString('language') ?? 'uz';
     setState(() => _selectedLang = code);
   }
 
   Future<void> _changeLanguage(String langCode) async {
     await LanguageController.setLanguage(langCode);
     setState(() => _selectedLang = langCode);
+  }
+
+  Future<void> _navigateToEditSettings() async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditSettingsScreen(),
+      ),
+    );
+
+    // If data was updated, reload the user data
+    if (result == true) {
+      _loadUserData();
+    }
   }
 
   @override
@@ -42,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          LanguageController.get('settings'),
+          LanguageController.get('profile_appbar'),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -51,6 +68,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.red[600],
         scrolledUnderElevation: 0,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: _navigateToEditSettings,
+            tooltip: LanguageController.get('edit_profile'),
+          ),
+        ],
       ),
       body: userData == null
           ? Center(
@@ -146,7 +174,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         value: 'uz',
                         child: Row(
                           children: [
-
                             Text(LanguageController.get('uz')),
                           ],
                         ),
@@ -155,7 +182,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         value: 'ru',
                         child: Row(
                           children: [
-
                             Text(LanguageController.get('ru')),
                           ],
                         ),
@@ -237,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: 32),
 
             // Logout Button
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(

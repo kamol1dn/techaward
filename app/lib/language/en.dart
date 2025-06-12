@@ -9,9 +9,14 @@ final Map<String, String> en = {
   'en': '🇺🇸 English', //language selector
   'ru': '🇷🇺 Russian',
   'uz': '🇺🇿 Uzbek',
-
+  'app_description': 'Quick access to emergency services when you need them most',
+  'emergency_notice': 'For immediate emergencies, call emergency services directly',
   // main main.dart
   "emergency_title": "Emergency Aid - 84U",
+  // main screen
+  'navbar_emergency' : 'Emergency',
+  'navbar_guides' : 'Guides',
+  'navbar_profile' : 'Profile',
 
   // home screen
   'offline_limited': 'Offline Mode - Limited functionality',
@@ -44,6 +49,7 @@ final Map<String, String> en = {
   'emergency_reminder': 'Remember: In real emergencies, call emergency services immediately!',
 
   // settings screen
+  'profile_appbar': 'My profile & settings',
   'settings': 'Settings',
   'language': 'Language',
   'personal_info': 'Personal Information',
@@ -60,4 +66,22 @@ final Map<String, String> en = {
   'confirm_logout': 'Confirm Logout',
   'logout_message': 'Are you sure you want to logout?',
   'cancel': 'Cancel',
+
+  'edit_profile': 'Edit Profile',
+  'save': 'Save',
+  'save_changes': 'Save Changes',
+  'field_required': 'This field is required',
+  'invalid_age': 'Please enter a valid age (1-120)',
+  'invalid_phone': 'Please enter a valid phone number (+998XXXXXXXXX)',
+  'data_updated_successfully': 'Profile updated successfully',
+  'update_failed': 'Failed to update profile',
+  'network_error': 'Network error. Please try again.',
+  'unsaved_changes': 'Unsaved Changes',
+  'discard_changes_message': 'You have unsaved changes. Do you want to discard them?',
+  'keep_editing': 'Keep Editing',
+  'discard': 'Discard',
+  'name': 'Name',
+  'surname': 'Surname',
+  'phone': 'Phone',
+
 };

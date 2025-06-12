@@ -5,6 +5,8 @@ import 'profile/settings_screen.dart';
 import '../../language/language_controller.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -25,19 +27,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     NavigationItem(
       icon: Icons.emergency_outlined,
       selectedIcon: Icons.emergency,
-      label: 'emergency',
+      label: 'navbar_emergency',
       color: Colors.red[600]!,
     ),
     NavigationItem(
-      icon: Icons.help_outline,
-      selectedIcon: Icons.help,
-      label: 'guides',
+      icon: Icons.menu_book_outlined,
+      selectedIcon: Icons.menu_book,
+      label: 'navbar_guides',
       color: Colors.blue[600]!,
     ),
     NavigationItem(
       icon: Icons.person_outline,
       selectedIcon: Icons.person,
-      label: 'profile',
+      label: 'navbar_profile',
       color: Colors.green[600]!,
     ),
   ];

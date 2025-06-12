@@ -11,7 +11,7 @@ class RequestHelpScreen extends StatefulWidget {
   final EmergencyType type;
   final bool isOnline;
 
-  RequestHelpScreen({required this.type, required this.isOnline});
+  const RequestHelpScreen({super.key, required this.type, required this.isOnline});
 
   @override
   _RequestHelpScreenState createState() => _RequestHelpScreenState();

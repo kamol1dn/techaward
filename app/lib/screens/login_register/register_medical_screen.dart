@@ -8,7 +8,7 @@ import '../../services/storage_service.dart';
 class RegisterMedicalScreen extends StatefulWidget {
   final PersonalData personalData;
 
-  RegisterMedicalScreen({required this.personalData});
+  const RegisterMedicalScreen({super.key, required this.personalData});
 
   @override
   _RegisterMedicalScreenState createState() => _RegisterMedicalScreenState();

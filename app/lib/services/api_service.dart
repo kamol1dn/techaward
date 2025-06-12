@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
@@ -12,8 +11,9 @@ class ApiService {
   static Future<void> init() async
   {
     online = await isServerOnline();
-    if(online)
+    if(online) {
       print("Online");
+    }
     useTestServer = !online;
   }
   static Future<bool> isServerOnline() async
@@ -107,5 +107,40 @@ class ApiService {
     );
 
     return jsonDecode(response.body);
+  }
+
+  // New method for updating user data
+  static Future<Map<String, dynamic>> updateUserData(Map<String, dynamic> userData) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 2)); // Simulate network delay
+      return DummyData.simulateUpdateUserData(userData);
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/accounts/profile/update/'),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization header if needed
+          // 'Authorization': 'Bearer ${await StorageService.getUserToken()}',
+        },
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'success': false,
+          'message': 'Server error: ${response.statusCode}'
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e'
+      };
+    }
   }
 }

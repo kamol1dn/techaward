@@ -3,6 +3,8 @@ import '../../data/help_data.dart';
 import '../../language/language_controller.dart';
 
 class HelpScreen extends StatelessWidget {
+  const HelpScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,7 +169,7 @@ class HelpScreen extends StatelessWidget {
 class HelpDetailScreen extends StatelessWidget {
   final HelpTopic topic;
 
-  const HelpDetailScreen({required this.topic});
+  const HelpDetailScreen({super.key, required this.topic});
 
   @override
   Widget build(BuildContext context) {

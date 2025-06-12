@@ -6,6 +6,8 @@ import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -210,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 32),
 
                       // Login Button
-                      Container(
+                      SizedBox(
                         width: double.infinity,
                         height: 56,
                         child: _isLoading

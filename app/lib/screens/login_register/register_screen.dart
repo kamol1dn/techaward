@@ -5,6 +5,8 @@ import '../../models/user_model.dart';
 import '../../language/language_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -197,7 +199,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                               if (!_otpVerified) ...[
                                 SizedBox(height: 16),
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   height: 48,
                                   child: ElevatedButton(
@@ -254,7 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   (LanguageController.get('required') ?? 'Required') : null,
                                 ),
                                 SizedBox(height: 16),
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   height: 48,
                                   child: ElevatedButton(
@@ -582,7 +584,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(height: 32),
 
                         // Next Button
-                        Container(
+                        SizedBox(
                           width: double.infinity,
                           height: 56,
                           child: _isLoading

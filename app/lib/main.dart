@@ -5,7 +5,6 @@ import 'language/language_controller.dart';
 import 'screens/login_register/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'services/storage_service.dart';
-import 'services/api_service.dart';
 
 
 
@@ -17,6 +16,8 @@ void main() async {
 }
 
 class EmergencyApp extends StatelessWidget {
+  const EmergencyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,7 +27,7 @@ class EmergencyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         primarySwatch: Colors.red,
-        fontFamily: 'Roboto',
+
       ),
       home: FutureBuilder<bool>(
         future: _checkFirstTime(),

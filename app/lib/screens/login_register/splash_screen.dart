@@ -5,6 +5,8 @@ import 'login_screen.dart';
 import 'quick_numbers_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -53,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   Future<void> _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    final code = prefs.getString('language') ?? 'en';
+    final code = prefs.getString('language') ?? 'uz';
     setState(() => _selectedLang = code);
   }
 
@@ -228,7 +230,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         child: Column(
                           children: [
                             // Login/Register Button
-                            Container(
+                            SizedBox(
                               width: double.infinity,
                               height: 56,
                               child: ElevatedButton(
@@ -265,7 +267,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                             SizedBox(height: 16),
 
                             // Quick Numbers Button
-                            Container(
+                            SizedBox(
                               width: double.infinity,
                               height: 56,
                               child: OutlinedButton(

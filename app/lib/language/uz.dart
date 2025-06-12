@@ -11,6 +11,10 @@ final Map<String, String> uz = {
 
   // main main.dart
   "emergency_title": "Favqulodda yordam - 84U",
+  // main screen
+  'navbar_emergency' : 'Yordam',
+  'navbar_guides' : 'Yo\'riqnoma',
+  'navbar_profile' : 'Men',
 
   // home screen
   'offline_limited': 'Ofline rejim - Cheklangan funksiyalar',
@@ -59,4 +63,22 @@ final Map<String, String> uz = {
   'confirm_logout': 'Chiqishni tasdiqlang',
   'logout_message': 'Chiqmoqchi ekanligingizga ishonchingiz komilmi?',
   'cancel': 'Bekor qilish',
+
+  'edit_profile': 'Profilni tahrirlash',
+  'save': 'Saqlash',
+  'save_changes': 'O\'zgarishlarni saqlash',
+  'field_required': 'Bu maydon to\'ldirilishi shart',
+  'invalid_age': 'Iltimos, to\'g\'ri yoshni kiriting (1-120)',
+  'invalid_phone': 'Iltimos, to\'g\'ri telefon raqamini kiriting (+998XXXXXXXXX)',
+  'data_updated_successfully': 'Profil muvaffaqiyatli yangilandi',
+  'update_failed': 'Profilni yangilashda xato',
+  'network_error': 'Tarmoq xatosi. Qayta urinib ko\'ring.',
+  'unsaved_changes': 'Saqlanmagan o\'zgarishlar',
+  'discard_changes_message': 'Sizda saqlanmagan o\'zgarishlar bor. Ularni bekor qilasizmi?',
+  'keep_editing': 'Tahrirlashni davom ettirish',
+  'discard': 'Bekor qilish',
+  'name': 'Ism',
+  'surname': 'Familiya',
+  'phone': 'Telefon',
+
 };

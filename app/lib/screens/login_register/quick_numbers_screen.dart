@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 
 class QuickNumbersScreen extends StatelessWidget {
+  const QuickNumbersScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

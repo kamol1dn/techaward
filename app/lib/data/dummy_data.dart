@@ -25,7 +25,7 @@ class DummyData {
     }
     return {
       'success': false,
-      'message': 'Invalid credentials'
+      'message': 'Invalid credentials',
     };
   }
 
@@ -63,6 +63,43 @@ class DummyData {
       'success': true,
       'request_id': 'ER${DateTime.now().millisecondsSinceEpoch}',
       'message': 'Emergency request received and being processed'
+    };
+  }
+
+  // New method for simulating user data update
+  static Map<String, dynamic> simulateUpdateUserData(Map<String, dynamic> userData) {
+    // Simulate validation
+    List<String> errors = [];
+
+    if (userData['name']?.toString().isEmpty == true) {
+      errors.add('Name is required');
+    }
+    if (userData['surname']?.toString().isEmpty == true) {
+      errors.add('Surname is required');
+    }
+    if (userData['phone']?.toString().isEmpty == true) {
+      errors.add('Phone is required');
+    }
+    if (userData['age'] == null || userData['age'] < 1 || userData['age'] > 120) {
+      errors.add('Invalid age');
+    }
+    if (userData['passport']?.toString().isEmpty == true) {
+      errors.add('Passport is required');
+    }
+
+    // Return error if validation fails
+    if (errors.isNotEmpty) {
+      return {
+        'success': false,
+        'message': 'Validation failed: ${errors.join(', ')}'
+      };
+    }
+
+    // Simulate successful update
+    return {
+      'success': true,
+      'message': 'Profile updated successfully',
+      'updated_data': userData
     };
   }
 }
