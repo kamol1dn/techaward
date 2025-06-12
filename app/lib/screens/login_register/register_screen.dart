@@ -13,7 +13,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _otpController = TextEditingController();
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
@@ -144,14 +144,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
-                                      Icons.phone_android,
+                                      Icons.verified_outlined,
                                       color: Colors.red[600],
                                       size: 20,
                                     ),
                                   ),
                                   SizedBox(width: 12),
                                   Text(
-                                    LanguageController.get('phone_verification') ?? 'Phone Verification',
+                                    LanguageController.get('email_verification') ?? 'Email Verification',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -164,11 +164,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                               // Phone Field
                               TextFormField(
-                                controller: _phoneController,
+                                controller: _emailController,
                                 enabled: !_otpVerified,
                                 decoration: InputDecoration(
-                                  labelText: LanguageController.get('phone_number') ?? 'Phone Number',
-                                  hintText: LanguageController.get('enter_phone') ?? 'Enter your phone number',
+                                  labelText: LanguageController.get('email_address') ?? 'Email address',
+                                  hintText: LanguageController.get('enter_email') ?? 'Enter your email',
                                   prefixIcon: Container(
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
@@ -177,7 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
-                                      Icons.phone,
+                                      Icons.email,
                                       color: Colors.red[600],
                                       size: 20,
                                     ),
@@ -658,10 +658,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _sendOtp() async {
-    if (_phoneController.text.isEmpty) return;
+    if (_emailController.text.isEmpty) return;
 
     setState(() => _isLoading = true);
-    final result = await ApiService.sendOtp(_phoneController.text);
+    final result = await ApiService.sendOtp(_emailController.text);
     setState(() => _isLoading = false);
 
     if (result['success']) {
@@ -676,7 +676,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_otpController.text.isEmpty) return;
 
     setState(() => _isLoading = true);
-    final result = await ApiService.verifyOtp(_phoneController.text, _otpController.text);
+    final result = await ApiService.verifyOtp(_emailController.text, _otpController.text);
     setState(() => _isLoading = false);
 
     if (result['success']) {
@@ -691,7 +691,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final personalData = PersonalData(
-      phone: _phoneController.text,
+      phone: _emailController.text,
       name: _nameController.text,
       surname: _surnameController.text,
       age: int.parse(_ageController.text),

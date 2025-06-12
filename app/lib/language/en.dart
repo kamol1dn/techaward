@@ -1,4 +1,3 @@
-// english
 final Map<String, String> en = {
   'help_tutorial': 'Help & Tutorials',
 
@@ -6,17 +5,19 @@ final Map<String, String> en = {
   'emergency_services': 'Emergency Services',
   'login_register': 'Login / Register',
   'quick_numbers': 'Quick Numbers / Tutorials',
-  'en': '🇺🇸 English', //language selector
+  'en': '🇺🇸 English',
   'ru': '🇷🇺 Russian',
   'uz': '🇺🇿 Uzbek',
   'app_description': 'Quick access to emergency services when you need them most',
   'emergency_notice': 'For immediate emergencies, call emergency services directly',
+
   // main main.dart
   "emergency_title": "Emergency Aid - 84U",
+
   // main screen
-  'navbar_emergency' : 'Emergency',
-  'navbar_guides' : 'Guides',
-  'navbar_profile' : 'Profile',
+  'navbar_emergency': 'Emergency',
+  'navbar_guides': 'Guides',
+  'navbar_profile': 'Profile',
 
   // home screen
   'offline_limited': 'Offline Mode - Limited functionality',
@@ -33,14 +34,43 @@ final Map<String, String> en = {
   'other_emergency': 'General Help',
   'tap_to_continue': 'Tap to continue',
 
-  //login screen
+  // login screen
   'login': "Login",
   'register': "Register",
   'password': 'Password',
-  'passport_or_phone': "Passport Series or Phone Number",
-  'hint_text_passport_phone': 'AD1234567 or 901234567',
+  'enter_password': 'Enter your password',
+  'confirm_password': 'Confirm Password',
+  'confirm_password_hint': 'Confirm your password',
+  'passport_or_email': "Passport Series or Email",
+  'hint_text_passport_email': 'AB1234567 or example@example.com',
   'not_account_register': 'Don\'t have an account? Register',
   'login_fail': "Login failed!",
+  'no_account': "Don't have an account?",
+  'login_subtitle': 'Sign in to access emergency services',
+  'welcome_back': 'Welcome back!',
+  'login_description': 'Please sign in to your account',
+
+  // register screen
+  'create_account': "Create account",
+  'register_subtitle': 'Step 1 of 2 - Personal Information',
+  'email_verification': 'Email verification',
+  'email_address': 'Email address',
+  'enter_email': 'Enter your email',
+  'otp_sent': 'OTP sent',
+  'send_otp': 'Send OTP',
+  'otp_code': 'OTP code',
+  'enter_otp': 'Enter verification code',
+  'verify_otp': 'Verify OTP',
+  'phone_verified': '✓ Phone Verified',
+  'personal_information': 'Personal Information',
+  'passport_series': 'Passport Series',
+  'enter_passport': 'Enter passport series',
+  'password_mismatch': 'Passwords don\'t match',
+  'next_medical': 'Next: Medical Data',
+  'otp_sent_success': 'OTP sent successfully',
+  'otp_send_failed': 'Failed to send OTP',
+  'phone_verified_success': 'Phone verified successfully',
+  'otp_verification_failed': 'OTP verification failed',
 
   // help/guides screen
   'help_description': 'Learn how to use emergency\nservices effectively',
@@ -48,7 +78,7 @@ final Map<String, String> en = {
   'detailed_guide': 'Detailed Guide',
   'emergency_reminder': 'Remember: In real emergencies, call emergency services immediately!',
 
-  // settings screen
+  // settings/profile screen
   'profile_appbar': 'My profile & settings',
   'settings': 'Settings',
   'language': 'Language',
@@ -66,13 +96,13 @@ final Map<String, String> en = {
   'confirm_logout': 'Confirm Logout',
   'logout_message': 'Are you sure you want to logout?',
   'cancel': 'Cancel',
-
   'edit_profile': 'Edit Profile',
   'save': 'Save',
   'save_changes': 'Save Changes',
   'field_required': 'This field is required',
   'invalid_age': 'Please enter a valid age (1-120)',
-  'invalid_phone': 'Please enter a valid phone number (+998XXXXXXXXX)',
+  'invalid_email': 'Please enter a valid email (example@example.com)',
+  'invalid_phone': 'Please enter a valid phone number',
   'data_updated_successfully': 'Profile updated successfully',
   'update_failed': 'Failed to update profile',
   'network_error': 'Network error. Please try again.',
@@ -83,5 +113,7 @@ final Map<String, String> en = {
   'name': 'Name',
   'surname': 'Surname',
   'phone': 'Phone',
-
+  'required': 'Required',
+  'male': 'Male',
+  'female': 'Female',
 };

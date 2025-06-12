@@ -132,8 +132,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               TextFormField(
                                 controller: _loginController,
                                 decoration: InputDecoration(
-                                  labelText: LanguageController.get('passport_or_phone') ?? 'Passport or Phone',
-                                  hintText: LanguageController.get('hint_text_passport_phone') ?? 'Enter your passport or phone',
+                                  labelText: LanguageController.get('passport_or_email') ?? 'Passport or Phone',
+                                  hintText: LanguageController.get('hint_text_passport_email') ?? 'Enter your passport or phone',
                                   prefixIcon: Container(
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
