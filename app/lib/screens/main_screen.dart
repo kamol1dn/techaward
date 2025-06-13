@@ -3,6 +3,7 @@ import 'emergency/home_screen.dart';
 import 'guides/help_screen.dart';
 import 'profile/settings_screen.dart';
 import '../../language/language_controller.dart';
+import 'safety/safety_overview_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,6 +19,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   final List<Widget> _screens = [
     HomeScreen(),
+    SafetyOverviewScreen(),
     HelpScreen(),
     SettingsScreen(),
   ];
@@ -29,6 +31,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       selectedIcon: Icons.emergency,
       label: 'navbar_emergency',
       color: Colors.red[600]!,
+    ),
+    NavigationItem(
+      icon: Icons.security_outlined,
+      selectedIcon: Icons.security,
+      label: 'navbar_safety',
+      color: Colors.orange[600]!,
     ),
     NavigationItem(
       icon: Icons.menu_book_outlined,

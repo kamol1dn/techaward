@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import '../models/emergency_request.dart';
+import '../models/emergency_contact.dart';
+import '../models/family_member.dart';
 import '../data/dummy_data.dart';
 
 class ApiService {
@@ -142,5 +144,165 @@ class ApiService {
         'message': 'Network error: $e'
       };
     }
+  }
+
+
+  // Emergency Contacts API methods
+  static Future<Map<String, dynamic>> saveEmergencyContact(EmergencyContact contact) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateSaveEmergencyContact(contact);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/safety/emergency-contacts/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(contact.toJson()),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getEmergencyContacts() async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateGetEmergencyContacts();
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/safety/emergency-contacts/'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> deleteEmergencyContact(String contactId) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateDeleteEmergencyContact(contactId);
+    }
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/safety/emergency-contacts/$contactId/'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Family Members API methods
+  static Future<Map<String, dynamic>> saveFamilyMember(FamilyMember member) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateSaveFamilyMember(member);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/safety/family-members/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(member.toJson()),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getFamilyMembers() async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateGetFamilyMembers();
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/safety/family-members/'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> deleteFamilyMember(String memberId) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateDeleteFamilyMember(memberId);
+    }
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/safety/family-members/$memberId/'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> sendFamilyInvite(String phone, String name) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateSendFamilyInvite(phone, name);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/safety/family-invite/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'phone': phone,
+        'name': name,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> updateLocation(LocationData location) async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateUpdateLocation(location);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/safety/update-location/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(location.toJson()),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getFamilyLocations() async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 1));
+      return DummyData.simulateGetFamilyLocations();
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/safety/family-locations/'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> sendTestEmergencyNotification() async {
+    await init();
+    if (useTestServer) {
+      await Future.delayed(Duration(seconds: 2));
+      return DummyData.simulateTestEmergencyNotification();
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/safety/test-emergency-notification/'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    return jsonDecode(response.body);
   }
 }

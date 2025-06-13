@@ -1,5 +1,8 @@
 import '../models/user_model.dart';
 import '../models/emergency_request.dart';
+import '../models/emergency_contact.dart';
+import '../models/family_member.dart';
+
 
 class DummyData {
   static Map<String, dynamic> simulateLogin(String login, String password) {
@@ -102,4 +105,197 @@ class DummyData {
       'updated_data': userData
     };
   }
+
+  // Emergency Contacts dummy methods
+  static Map<String, dynamic> simulateSaveEmergencyContact(EmergencyContact contact) {
+    return {
+      'success': true,
+      'message': 'Emergency contact saved successfully',
+      'contact': contact.toJson(),
+    };
+  }
+
+  static Map<String, dynamic> simulateGetEmergencyContacts() {
+    return {
+      'success': true,
+      'contacts': [
+        {
+          'id': 'ec_1',
+          'name': 'John Doe',
+          'phone': '+998901234567',
+          'relationship': 'Father',
+          'is_primary': true,
+          'created_at': DateTime.now().subtract(Duration(days: 30)).toIso8601String(),
+        },
+        {
+          'id': 'ec_2',
+          'name': 'Jane Smith',
+          'phone': '+998907654321',
+          'relationship': 'Sister',
+          'is_primary': false,
+          'created_at': DateTime.now().subtract(Duration(days: 15)).toIso8601String(),
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> simulateDeleteEmergencyContact(String contactId) {
+    return {
+      'success': true,
+      'message': 'Emergency contact deleted successfully',
+    };
+  }
+
+  // Family Members dummy methods
+  static Map<String, dynamic> simulateSaveFamilyMember(FamilyMember member) {
+    return {
+      'success': true,
+      'message': 'Family member saved successfully',
+      'member': member.toJson(),
+    };
+  }
+
+  static Map<String, dynamic> simulateGetFamilyMembers() {
+    return {
+      'success': true,
+      'members': [
+        {
+          'id': 'fm_1',
+          'name': 'Mom',
+          'phone': '+998901111111',
+          'relationship': 'Mother',
+          'is_online': true,
+          'last_seen': DateTime.now().subtract(Duration(minutes: 5)).toIso8601String(),
+          'location': {
+            'latitude': 41.2995,
+            'longitude': 69.2401,
+            'address': 'Tashkent, Uzbekistan',
+            'timestamp': DateTime.now().subtract(Duration(minutes: 5)).toIso8601String(),
+          },
+          'can_track_me': true,
+          'can_i_track': true,
+          'created_at': DateTime.now().subtract(Duration(days: 60)).toIso8601String(),
+        },
+        {
+          'id': 'fm_2',
+          'name': 'Dad',
+          'phone': '+998902222222',
+          'relationship': 'Father',
+          'is_online': false,
+          'last_seen': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
+          'location': {
+            'latitude': 41.3111,
+            'longitude': 69.2797,
+            'address': 'Chilanzar, Tashkent',
+            'timestamp': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
+          },
+          'can_track_me': true,
+          'can_i_track': true,
+          'created_at': DateTime.now().subtract(Duration(days: 45)).toIso8601String(),
+        },
+        {
+          'id': 'fm_3',
+          'name': 'Brother',
+          'phone': '+998903333333',
+          'relationship': 'Brother',
+          'is_online': true,
+          'last_seen': DateTime.now().subtract(Duration(minutes: 1)).toIso8601String(),
+          'location': {
+            'latitude': 41.2647,
+            'longitude': 69.2163,
+            'address': 'Yunusabad, Tashkent',
+            'timestamp': DateTime.now().subtract(Duration(minutes: 1)).toIso8601String(),
+          },
+          'can_track_me': false,
+          'can_i_track': true,
+          'created_at': DateTime.now().subtract(Duration(days: 20)).toIso8601String(),
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> simulateDeleteFamilyMember(String memberId) {
+    return {
+      'success': true,
+      'message': 'Family member removed successfully',
+    };
+  }
+
+  static Map<String, dynamic> simulateSendFamilyInvite(String phone, String name) {
+    return {
+      'success': true,
+      'message': 'Family invite sent successfully',
+      'invite_id': 'inv_${DateTime.now().millisecondsSinceEpoch}',
+    };
+  }
+
+  static Map<String, dynamic> simulateUpdateLocation(LocationData location) {
+    return {
+      'success': true,
+      'message': 'Location updated successfully',
+      'location': location.toJson(),
+    };
+  }
+
+  static Map<String, dynamic> simulateGetFamilyLocations() {
+    return {
+      'success': true,
+      'locations': [
+        {
+          'member_id': 'fm_1',
+          'name': 'Mom',
+          'location': {
+            'latitude': 41.2995,
+            'longitude': 69.2401,
+            'address': 'Tashkent, Uzbekistan',
+            'timestamp': DateTime.now().subtract(Duration(minutes: 5)).toIso8601String(),
+          },
+          'is_online': true,
+        },
+        {
+          'member_id': 'fm_2',
+          'name': 'Dad',
+          'location': {
+            'latitude': 41.3111,
+            'longitude': 69.2797,
+            'address': 'Chilanzar, Tashkent',
+            'timestamp': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
+          },
+          'is_online': false,
+        },
+        {
+          'member_id': 'fm_3',
+          'name': 'Brother',
+          'location': {
+            'latitude': 41.2647,
+            'longitude': 69.2163,
+            'address': 'Yunusabad, Tashkent',
+            'timestamp': DateTime.now().subtract(Duration(minutes: 1)).toIso8601String(),
+          },
+          'is_online': true,
+        },
+      ],
+    };
+  }
+
+  static Map<String, dynamic> simulateTestEmergencyNotification() {
+    return {
+      'success': true,
+      'message': 'Test emergency notification sent to all emergency contacts',
+      'notified_contacts': [
+        {
+          'name': 'John Doe',
+          'phone': '+998901234567',
+          'status': 'sent',
+        },
+        {
+          'name': 'Jane Smith',
+          'phone': '+998907654321',
+          'status': 'sent',
+        },
+      ],
+    };
+  }
+
+
 }
