@@ -116,4 +116,22 @@ final Map<String, String> en = {
   'required': 'Required',
   'male': 'Male',
   'female': 'Female',
+
+
+  //family screen
+  // Add these keys to your language controller/files:
+  'navbar_family': 'Family',
+  'family_title': 'Family & Emergency',
+  'emergency_contacts': 'Emergency Contacts',
+  'manage_emergency_contacts': 'Add and manage emergency contacts',
+  'location_sharing': 'Location Sharing',
+  'share_location_with_family': 'Share your location with family members',
+  'emergency_alerts': 'Emergency Alerts',
+  'setup_family_alerts': 'Setup emergency notification system',
+  'family_circle': 'Family Circle',
+  'manage_family_members': 'Manage your family members',
+  'family_medical_information': 'Store important medical information',
+'family_quick_access': 'Family Emergency Management',
+'family_description': 'Manage emergency contacts, sharing, and family safety features',
+
 };

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'emergency/home_screen.dart';
+import 'family/family_screen.dart';
 import 'guides/help_screen.dart';
 import 'profile/settings_screen.dart';
 import '../../language/language_controller.dart';
-import 'safety/safety_overview_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   final List<Widget> _screens = [
     HomeScreen(),
-    SafetyOverviewScreen(),
+    FamilyScreen(),
     HelpScreen(),
     SettingsScreen(),
   ];
@@ -33,10 +33,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       color: Colors.red[600]!,
     ),
     NavigationItem(
-      icon: Icons.security_outlined,
-      selectedIcon: Icons.security,
-      label: 'navbar_safety',
-      color: Colors.orange[600]!,
+        icon: Icons.people_alt_outlined,
+        selectedIcon: Icons.people_alt,
+        label: 'navbar_family',
+        color: Colors.teal[600]!
     ),
     NavigationItem(
       icon: Icons.menu_book_outlined,

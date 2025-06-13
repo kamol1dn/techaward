@@ -9,60 +9,114 @@ class HelpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          LanguageController.get('help_tutorial'),
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red[600],
-        elevation: 0,
-      ),
       body: Column(
         children: [
-          // Header Section
+          // Header Section with Gradient (consistent with HomeScreen and FamilyScreen)
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.red[600]!, Colors.red[400]!],
+                colors: [Colors.blue[700]!, Colors.blue[400]!],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
-            padding: EdgeInsets.fromLTRB(24, 16, 24, 32),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Icon(
-                    Icons.menu_book_rounded,
-                    size: 48,
-                    color: Colors.white,
-                  ),
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 16, 24, 32),
+                child: Column(
+                  children: [
+                    // App Bar Content
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          LanguageController.get('help_tutorial') ?? 'Help & Guides',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.menu_book,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Learning Hub',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
+                    // Hero Section
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Icon(
+                            Icons.menu_book_rounded,
+                            size: 48,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                LanguageController.get('help_quick_access') ?? 'Emergency Services Guide',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                LanguageController.get('help_description') ?? 'Learn how to use emergency services effectively',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.9),
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(width: 16),
-                Text(
-                  LanguageController.get('help_description') ?? 'Learn how to use emergency services effectively',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
           ),
 
-          // Topics List
+          // Topics List (consistent with FamilyScreen style)
           Expanded(
             child: Container(
               padding: EdgeInsets.all(20),

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/storage_service.dart';
@@ -56,247 +57,283 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          LanguageController.get('profile_appbar'),
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red[600],
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-              size: 24,
-            ),
-            onPressed: _navigateToEditSettings,
-            tooltip: LanguageController.get('edit_profile'),
-          ),
-        ],
-      ),
       body: userData == null
           ? Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.red[600]!),
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.green[600]!),
         ),
       )
-          : SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Header
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.red[600]!, Colors.red[400]!],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.red.withValues(alpha: 0.3),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              padding: EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: Colors.red[600],
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    '${userData!['name']} ${userData!['surname']}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    userData!['phone'],
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                ],
+          : Column(
+        children: [
+          // Header Section with Gradient (consistent with other screens)
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.green[700]!, Colors.green[400]!],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-
-            SizedBox(height: 24),
-
-            // Language Selection Card
-            _buildSettingsCard(
-              title: LanguageController.get('language'),
-              icon: Icons.language,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedLang,
-                    isExpanded: true,
-                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.red[600]),
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    onChanged: (val) {
-                      if (val != null) _changeLanguage(val);
-                    },
-                    items: [
-                      DropdownMenuItem(
-                        value: 'uz',
-                        child: Row(
-                          children: [
-                            Text(LanguageController.get('uz')),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'ru',
-                        child: Row(
-                          children: [
-                            Text(LanguageController.get('ru')),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'en',
-                        child: Row(
-                          children: [
-                            Text(LanguageController.get('en')),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 16),
-
-            // Personal Information Card
-            _buildSettingsCard(
-              title: LanguageController.get('personal_info'),
-              icon: Icons.person_outline,
-              child: Column(
-                children: [
-                  _buildInfoRow(
-                    LanguageController.get('age'),
-                    userData!['age'].toString(),
-                    Icons.cake_outlined,
-                  ),
-                  _buildInfoRow(
-                    LanguageController.get('gender'),
-                    userData!['gender'],
-                    Icons.wc_outlined,
-                  ),
-                  _buildInfoRow(
-                    LanguageController.get('passport'),
-                    userData!['passport'],
-                    Icons.credit_card_outlined,
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 16),
-
-            // Medical Information Card
-            _buildSettingsCard(
-              title: LanguageController.get('medical_info'),
-              icon: Icons.medical_information_outlined,
-              child: Column(
-                children: [
-                  _buildInfoRow(
-                    LanguageController.get('blood_type'),
-                    userData!['blood_type'],
-                    Icons.bloodtype_outlined,
-                  ),
-                  _buildInfoRow(
-                    LanguageController.get('allergies'),
-                    userData!['allergies'],
-                    Icons.warning_amber_outlined,
-                  ),
-                  _buildInfoRow(
-                    LanguageController.get('illness'),
-                    userData!['illness'] ?? LanguageController.get('none'),
-                    Icons.local_hospital_outlined,
-                  ),
-                  if (userData!['additional_info']?.isNotEmpty == true)
-                    _buildInfoRow(
-                      LanguageController.get('additional'),
-                      userData!['additional_info'],
-                      Icons.info_outline,
-                    ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 32),
-
-            // Logout Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _logout,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[600],
-                  foregroundColor: Colors.white,
-                  elevation: 3,
-                  shadowColor: Colors.red.withOpacity(0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 16, 24, 32),
+                child: Column(
                   children: [
-                    Icon(Icons.logout, size: 24),
-                    SizedBox(width: 12),
-                    Text(
-                      LanguageController.get('logout'),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    // App Bar Content
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          LanguageController.get('profile_appbar') ?? 'Profile & Settings',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _navigateToEditSettings,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Edit',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
+                    // Profile Hero Section
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            size: 48,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${userData!['name']} ${userData!['surname']}',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                userData!['phone'],
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.9),
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
+          ),
+          // Content Section
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Language Selection Card
+                  _buildSettingsCard(
+                    title: LanguageController.get('language') ?? 'Language',
+                    icon: Icons.language,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedLang,
+                          isExpanded: true,
+                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.green[600]),
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          onChanged: (val) {
+                            if (val != null) _changeLanguage(val);
+                          },
+                          items: [
+                            DropdownMenuItem(
+                              value: 'uz',
+                              child: Row(
+                                children: [
+                                  Text(LanguageController.get('uz') ?? 'Uzbek'),
+                                ],
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'ru',
+                              child: Row(
+                                children: [
+                                  Text(LanguageController.get('ru') ?? 'Russian'),
+                                ],
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'en',
+                              child: Row(
+                                children: [
+                                  Text(LanguageController.get('en') ?? 'English'),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
 
-            SizedBox(height: 20),
-          ],
-        ),
+                  SizedBox(height: 16),
+
+                  // Personal Information Card
+                  _buildSettingsCard(
+                    title: LanguageController.get('personal_info') ?? 'Personal Information',
+                    icon: Icons.person_outline,
+                    child: Column(
+                      children: [
+                        _buildInfoRow(
+                          LanguageController.get('age') ?? 'Age',
+                          userData!['age'].toString(),
+                          Icons.cake_outlined,
+                        ),
+                        _buildInfoRow(
+                          LanguageController.get('gender') ?? 'Gender',
+                          userData!['gender'],
+                          Icons.wc_outlined,
+                        ),
+                        _buildInfoRow(
+                          LanguageController.get('passport') ?? 'Passport',
+                          userData!['passport'],
+                          Icons.credit_card_outlined,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Medical Information Card
+                  _buildSettingsCard(
+                    title: LanguageController.get('medical_info') ?? 'Medical Information',
+                    icon: Icons.medical_information_outlined,
+                    child: Column(
+                      children: [
+                        _buildInfoRow(
+                          LanguageController.get('blood_type') ?? 'Blood Type',
+                          userData!['blood_type'],
+                          Icons.bloodtype_outlined,
+                        ),
+                        _buildInfoRow(
+                          LanguageController.get('allergies') ?? 'Allergies',
+                          userData!['allergies'],
+                          Icons.warning_amber_outlined,
+                        ),
+                        _buildInfoRow(
+                          LanguageController.get('illness') ?? 'Medical Conditions',
+                          userData!['illness'] ?? LanguageController.get('none') ?? 'None',
+                          Icons.local_hospital_outlined,
+                        ),
+                        if (userData!['additional_info']?.isNotEmpty == true)
+                          _buildInfoRow(
+                            LanguageController.get('additional') ?? 'Additional Info',
+                            userData!['additional_info'],
+                            Icons.info_outline,
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 32),
+
+                  // Logout Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _logout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[600],
+                        foregroundColor: Colors.white,
+                        elevation: 3,
+                        shadowColor: Colors.green.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.logout, size: 24),
+                          SizedBox(width: 12),
+                          Text(
+                            LanguageController.get('logout') ?? 'Logout',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -330,12 +367,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red[50],
+                    color: Colors.green[50],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.red[600],
+                    color: Colors.green[600],
                     size: 24,
                   ),
                 ),
@@ -404,28 +441,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          LanguageController.get('confirm_logout'),
+          LanguageController.get('confirm_logout') ?? 'Confirm Logout',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: Text(LanguageController.get('logout_message')),
+        content: Text(LanguageController.get('logout_message') ?? 'Are you sure you want to logout?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              LanguageController.get('cancel'),
+              LanguageController.get('cancel') ?? 'Cancel',
               style: TextStyle(color: Colors.grey[600]),
             ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[600],
+              backgroundColor: Colors.green[600],
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text(LanguageController.get('logout')),
+            child: Text(LanguageController.get('logout') ?? 'Logout'),
           ),
         ],
       ),
