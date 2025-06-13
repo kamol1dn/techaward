@@ -25,6 +25,7 @@ class EmergencyApp extends StatelessWidget {
       // title: LanguageController.get('emergency_title'),
 
       theme: ThemeData(
+        fontFamily: 'Nunito',
         useMaterial3: true,
         primarySwatch: Colors.red,
 
