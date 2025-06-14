@@ -1,24 +1,27 @@
 
 class PersonalData {
-  final String phone;
+  final String email;
   final String name;
   final String surname;
   final int age;
   final String gender;
   final String passport;
   final String password;
+  final String phone;
 
   PersonalData({
-    required this.phone,
+    required this.email,
     required this.name,
     required this.surname,
     required this.age,
     required this.gender,
     required this.passport,
     required this.password,
+    required this.phone,
   });
 
   Map<String, dynamic> toJson() => {
+    'email': email,
     'phone': phone,
     'name': name,
     'surname': surname,

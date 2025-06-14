@@ -19,6 +19,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
   // Controllers for form fields
   late TextEditingController _nameController;
   late TextEditingController _surnameController;
+  late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _ageController;
   late TextEditingController _passportController;
@@ -34,6 +35,40 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
 
   Map<String, dynamic>? _originalData;
 
+  // Phone number formatting helper
+  String _formatPhoneNumber(String phone) {
+    // Remove all non-digit characters
+    String digitsOnly = phone.replaceAll(RegExp(r'[^0-9]'), '');
+
+    // If user enters 9 digits, format as +998 xx xxx xx xx
+    if (digitsOnly.length == 9) {
+      return '+998$digitsOnly';
+    }
+
+    // If already starts with 998, add + prefix
+    if (digitsOnly.startsWith('998') && digitsOnly.length == 10) {
+      return '+$digitsOnly';
+    }
+
+    return phone;
+  }
+
+  String _getFormattedPhoneForJson() {
+    String phone = _phoneController.text.trim();
+    return _formatPhoneNumber(phone);
+  }
+
+  // Extract 9 digits from full phone number for display in input field
+  String _extractPhoneDigits(String fullPhone) {
+    if (fullPhone.startsWith('+998') && fullPhone.length == 13) {
+      return fullPhone.substring(4); // Remove +998 prefix
+    }
+    if (fullPhone.startsWith('998') && fullPhone.length == 10) {
+      return fullPhone.substring(3); // Remove 998 prefix
+    }
+    return fullPhone;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +79,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
   void _initializeControllers() {
     _nameController = TextEditingController();
     _surnameController = TextEditingController();
+    _emailController = TextEditingController();
     _phoneController = TextEditingController();
     _ageController = TextEditingController();
     _passportController = TextEditingController();
@@ -54,6 +90,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
     // Add listeners to detect changes
     _nameController.addListener(_onFieldChanged);
     _surnameController.addListener(_onFieldChanged);
+    _emailController.addListener(_onFieldChanged);
     _phoneController.addListener(_onFieldChanged);
     _ageController.addListener(_onFieldChanged);
     _passportController.addListener(_onFieldChanged);
@@ -75,7 +112,8 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
         _originalData = Map.from(data);
         _nameController.text = data['name'] ?? '';
         _surnameController.text = data['surname'] ?? '';
-        _phoneController.text = data['phone'] ?? '';
+        _emailController.text = data['email'] ?? '';
+        _phoneController.text = _extractPhoneDigits(data['phone'] ?? '');
         _ageController.text = data['age']?.toString() ?? '';
         _passportController.text = data['passport'] ?? '';
         _allergiesController.text = data['allergies'] ?? '';
@@ -96,7 +134,8 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
       final updatedData = {
         'name': _nameController.text.trim(),
         'surname': _surnameController.text.trim(),
-        'phone': _phoneController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _getFormattedPhoneForJson(), // Format phone as +998xxxxxxx
         'age': int.parse(_ageController.text.trim()),
         'gender': _selectedGender,
         'passport': _passportController.text.trim(),
@@ -117,7 +156,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
 
         // Show success message
         _showSnackBar(
-          LanguageController.get('data_updated_successfully'),
+          LanguageController.get('data_updated_successfully') ?? 'Profile updated successfully',
           Colors.green,
         );
 
@@ -125,13 +164,13 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
         Navigator.pop(context, true); // true indicates data was updated
       } else {
         _showSnackBar(
-          response['message'] ?? LanguageController.get('update_failed'),
+          response['message'] ?? LanguageController.get('update_failed') ?? 'Failed to update profile',
           Colors.red,
         );
       }
     } catch (e) {
       _showSnackBar(
-        LanguageController.get('network_error'),
+        LanguageController.get('network_error') ?? 'Network error. Please try again.',
         Colors.red,
       );
     } finally {
@@ -158,16 +197,16 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          LanguageController.get('unsaved_changes'),
+          LanguageController.get('unsaved_changes') ?? 'Unsaved Changes',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: Text(LanguageController.get('discard_changes_message')),
+        content: Text(LanguageController.get('discard_changes_message') ?? 'You have unsaved changes. Do you want to discard them?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              LanguageController.get('keep_editing'),
-              style: TextStyle(color: Colors.red[600]),
+              LanguageController.get('keep_editing') ?? 'Keep Editing',
+              style: TextStyle(color: Colors.green[600]),
             ),
           ),
           ElevatedButton(
@@ -179,7 +218,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text(LanguageController.get('discard')),
+            child: Text(LanguageController.get('discard') ?? 'Discard'),
           ),
         ],
       ),
@@ -194,13 +233,13 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
           title: Text(
-            LanguageController.get('edit_profile'),
+            LanguageController.get('edit_profile') ?? 'Edit Profile',
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
           ),
-          backgroundColor: Colors.red[600],
+          backgroundColor: Colors.green[600],
           iconTheme: IconThemeData(color: Colors.white),
           scrolledUnderElevation: 0,
           elevation: 0,
@@ -209,7 +248,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
               TextButton(
                 onPressed: _isLoading ? null : _saveChanges,
                 child: Text(
-                  LanguageController.get('save'),
+                  LanguageController.get('save') ?? 'Save',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -222,7 +261,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
         body: _originalData == null
             ? Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.red[600]!),
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.green[600]!),
           ),
         )
             : Form(
@@ -233,49 +272,51 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
               children: [
                 // Personal Information Section
                 _buildSectionCard(
-                  title: LanguageController.get('personal_info'),
+                  title: LanguageController.get('personal_info') ?? 'Personal Information',
                   icon: Icons.person_outline,
                   children: [
                     _buildTextField(
                       controller: _nameController,
-                      label: LanguageController.get('name'),
+                      label: LanguageController.get('name') ?? 'Name',
                       icon: Icons.person,
                       validator: (value) => value?.isEmpty == true
-                          ? LanguageController.get('field_required')
+                          ? LanguageController.get('field_required') ?? 'This field is required'
                           : null,
                     ),
                     SizedBox(height: 16),
                     _buildTextField(
                       controller: _surnameController,
-                      label: LanguageController.get('surname'),
+                      label: LanguageController.get('surname') ?? 'Surname',
                       icon: Icons.person,
                       validator: (value) => value?.isEmpty == true
-                          ? LanguageController.get('field_required')
+                          ? LanguageController.get('field_required') ?? 'This field is required'
                           : null,
                     ),
                     SizedBox(height: 16),
-                    _buildTextFieldPhone(
-                      controller: _phoneController,
-                      label: LanguageController.get('phone'),
-                      icon: Icons.phone,
+                    _buildTextFieldEmail(
+                      controller: _emailController,
+                      label: LanguageController.get('email') ?? 'Email',
+                      icon: Icons.email,
                     ),
+                    SizedBox(height: 16),
+                    _buildPhoneField(),
                     SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
                           child: _buildTextField(
                             controller: _ageController,
-                            label: LanguageController.get('age'),
+                            label: LanguageController.get('age') ?? 'Age',
                             icon: Icons.cake,
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             validator: (value) {
                               if (value?.isEmpty == true) {
-                                return LanguageController.get('field_required');
+                                return LanguageController.get('field_required') ?? 'This field is required';
                               }
                               final age = int.tryParse(value!);
                               if (age == null || age < 1 || age > 120) {
-                                return LanguageController.get('invalid_age');
+                                return LanguageController.get('invalid_age') ?? 'Please enter a valid age (1-120)';
                               }
                               return null;
                             },
@@ -285,7 +326,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                         Expanded(
                           child: _buildDropdown(
                             value: _selectedGender,
-                            label: LanguageController.get('gender'),
+                            label: LanguageController.get('gender') ?? 'Gender',
                             icon: Icons.wc,
                             items: _genders,
                             onChanged: (value) {
@@ -299,10 +340,10 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                     SizedBox(height: 16),
                     _buildTextField(
                       controller: _passportController,
-                      label: LanguageController.get('passport'),
+                      label: LanguageController.get('passport') ?? 'Passport',
                       icon: Icons.credit_card,
                       validator: (value) => value?.isEmpty == true
-                          ? LanguageController.get('field_required')
+                          ? LanguageController.get('field_required') ?? 'This field is required'
                           : null,
                     ),
                   ],
@@ -312,12 +353,12 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
 
                 // Medical Information Section
                 _buildSectionCard(
-                  title: LanguageController.get('medical_info'),
+                  title: LanguageController.get('medical_info') ?? 'Medical Information',
                   icon: Icons.medical_information_outlined,
                   children: [
                     _buildDropdown(
                       value: _selectedBloodType,
-                      label: LanguageController.get('blood_type'),
+                      label: LanguageController.get('blood_type') ?? 'Blood Type',
                       icon: Icons.bloodtype,
                       items: _bloodTypes,
                       onChanged: (value) {
@@ -328,21 +369,21 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                     SizedBox(height: 16),
                     _buildTextField(
                       controller: _allergiesController,
-                      label: LanguageController.get('allergies'),
+                      label: LanguageController.get('allergies') ?? 'Allergies',
                       icon: Icons.warning_amber,
                       maxLines: 2,
                     ),
                     SizedBox(height: 16),
                     _buildTextField(
                       controller: _illnessController,
-                      label: LanguageController.get('illness'),
+                      label: LanguageController.get('illness') ?? 'Medical Conditions',
                       icon: Icons.local_hospital,
                       maxLines: 2,
                     ),
                     SizedBox(height: 16),
                     _buildTextField(
                       controller: _additionalInfoController,
-                      label: LanguageController.get('additional'),
+                      label: LanguageController.get('additional') ?? 'Additional Information',
                       icon: Icons.info,
                       maxLines: 3,
                     ),
@@ -358,10 +399,10 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _saveChanges,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[600],
+                      backgroundColor: Colors.green[600],
                       foregroundColor: Colors.white,
                       elevation: 3,
-                      shadowColor: Colors.red.withOpacity(0.3),
+                      shadowColor: Colors.green.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -381,7 +422,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                         Icon(Icons.save, size: 24),
                         SizedBox(width: 12),
                         Text(
-                          LanguageController.get('save_changes'),
+                          LanguageController.get('save_changes') ?? 'Save Changes',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -398,6 +439,87 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPhoneField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _phoneController,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(9),
+          ],
+          style: TextStyle(fontSize: 16),
+          decoration: InputDecoration(
+            labelText: LanguageController.get('phone_number') ?? 'Phone Number',
+            hintText: LanguageController.get('enter_phone_hint') ?? 'Enter 9 digits',
+            prefixIcon: Icon(Icons.phone, color: Colors.green[600]),
+            prefixText: '+998 ',
+            prefixStyle: TextStyle(
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.green[600]!, width: 2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          validator: (value) {
+            if (value?.isEmpty == true) {
+              return LanguageController.get('field_required') ?? 'This field is required';
+            }
+            if (value!.length != 9) {
+              return LanguageController.get('invalid_phone_length') ?? 'Phone number must be 9 digits';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            _onFieldChanged();
+          },
+        ),
+
+        // Show formatted phone preview
+        if (_phoneController.text.length == 9) ...[
+          SizedBox(height: 8),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.green[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green[200]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green[600], size: 16),
+                SizedBox(width: 8),
+                Text(
+                  '${LanguageController.get('phone_preview') ?? 'Phone'}: ${_getFormattedPhoneForJson()}',
+                  style: TextStyle(
+                    color: Colors.green[700],
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -430,12 +552,12 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
                 Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red[50],
+                    color: Colors.green[50],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.red[600],
+                    color: Colors.green[600],
                     size: 24,
                   ),
                 ),
@@ -476,14 +598,14 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
       style: TextStyle(fontSize: 16),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.red[600]),
+        prefixIcon: Icon(icon, color: Colors.green[600]),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+          borderSide: BorderSide(color: Colors.green[600]!, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -496,34 +618,35 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
     );
   }
 
-  Widget _buildTextFieldPhone({
+  Widget _buildTextFieldEmail({
     required TextEditingController controller,
     required String label,
     required IconData icon,
   }) {
     return TextFormField(
       controller: controller,
-      keyboardType: TextInputType.phone,
+      keyboardType: TextInputType.emailAddress,
       style: TextStyle(fontSize: 16),
       validator: (value) {
         if (value?.isEmpty == true) {
-          return LanguageController.get('field_required');
+          return LanguageController.get('field_required') ?? 'This field is required';
         }
-        if (!RegExp(r'^\+998\d{9}$').hasMatch(value!)) {
-          return LanguageController.get('invalid_phone');
+        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!))
+        {
+          return LanguageController.get('invalid_email') ?? 'Please enter a valid email';
         }
         return null;
       },
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.red[600]),
+        prefixIcon: Icon(icon, color: Colors.green[600]),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+          borderSide: BorderSide(color: Colors.green[600]!, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -549,14 +672,14 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
       style: TextStyle(fontSize: 16, color: Colors.grey[800]),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.red[600]),
+        prefixIcon: Icon(icon, color: Colors.green[600]),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+          borderSide: BorderSide(color: Colors.green[600]!, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -579,6 +702,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
   void dispose() {
     _nameController.dispose();
     _surnameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _ageController.dispose();
     _passportController.dispose();

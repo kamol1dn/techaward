@@ -53,15 +53,21 @@ final Map<String, String> en = {
   // register screen
   'create_account': "Create account",
   'register_subtitle': 'Step 1 of 2 - Personal Information',
+  'contact_information': 'Contact Information',
   'email_verification': 'Email verification',
   'email_address': 'Email address',
   'enter_email': 'Enter your email',
+  'phone_number': 'Phone Number',
+  'enter_phone_hint': 'Enter 9 digits',
+  'phone_preview': 'Phone',
+  'invalid_phone_length': 'Phone number must be 9 digits',
   'otp_sent': 'OTP sent',
   'send_otp': 'Send OTP',
   'otp_code': 'OTP code',
   'enter_otp': 'Enter verification code',
   'verify_otp': 'Verify OTP',
   'phone_verified': '✓ Phone Verified',
+  'email_verified': '✓ Email Verified',
   'personal_information': 'Personal Information',
   'passport_series': 'Passport Series',
   'enter_passport': 'Enter passport series',
@@ -70,7 +76,10 @@ final Map<String, String> en = {
   'otp_sent_success': 'OTP sent successfully',
   'otp_send_failed': 'Failed to send OTP',
   'phone_verified_success': 'Phone verified successfully',
+  'email_verified_success': 'Email verified successfully',
   'otp_verification_failed': 'OTP verification failed',
+  'email_verification_required': 'Please verify your email first',
+  'otp_sent_info': 'OTP code sent to your email. Please check your inbox.',
 
   // help/guides screen
   'help_description': 'Learn how to use emergency\nservices effectively',
@@ -116,7 +125,7 @@ final Map<String, String> en = {
   'required': 'Required',
   'male': 'Male',
   'female': 'Female',
-
+  'email': "Email",
 
   //family screen
   // Add these keys to your language controller/files:
@@ -131,7 +140,6 @@ final Map<String, String> en = {
   'family_circle': 'Family Circle',
   'manage_family_members': 'Manage your family members',
   'family_medical_information': 'Store important medical information',
-'family_quick_access': 'Family Emergency Management',
-'family_description': 'Manage emergency contacts, sharing, and family safety features',
-
+  'family_quick_access': 'Family Emergency Management',
+  'family_description': 'Manage emergency contacts, sharing, and family safety features',
 };
