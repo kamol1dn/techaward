@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/storage_service.dart';
 import '../../language/language_controller.dart';
 import 'edit_settings_screen.dart'; // Import the edit settings screen
+import 'package:restart_app/restart_app.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -51,6 +52,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (result == true) {
       _loadUserData();
     }
+  }
+
+  // Helper method to safely get string values
+  String _getSafeString(String key, [String defaultValue = 'Not provided']) {
+    final value = userData?[key];
+    return value?.toString() ?? defaultValue;
   }
 
   @override
@@ -146,7 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${userData!['name']} ${userData!['surname']}',
+                                '${_getSafeString('name', 'User')} ${_getSafeString('surname', '')}',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -155,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                userData!['phone'],
+                                _getSafeString('phone', 'No phone number'),
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.white.withOpacity(0.9),
@@ -244,17 +251,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         _buildInfoRow(
                           LanguageController.get('age') ?? 'Age',
-                          userData!['age'].toString(),
+                          _getSafeString('age', 'Not provided'),
                           Icons.cake_outlined,
                         ),
                         _buildInfoRow(
+                          LanguageController.get('email') ?? 'Email',
+                          _getSafeString('email', 'Not provided'),
+                          Icons.email_outlined,
+                        ),
+                        _buildInfoRow(
                           LanguageController.get('gender') ?? 'Gender',
-                          userData!['gender'],
+                          _getSafeString('gender', 'Not specified'),
                           Icons.wc_outlined,
                         ),
                         _buildInfoRow(
                           LanguageController.get('passport') ?? 'Passport',
-                          userData!['passport'],
+                          _getSafeString('passport', 'Not provided'),
                           Icons.credit_card_outlined,
                         ),
                       ],
@@ -271,23 +283,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         _buildInfoRow(
                           LanguageController.get('blood_type') ?? 'Blood Type',
-                          userData!['blood_type'],
+                          _getSafeString('blood_type', 'Not specified'),
                           Icons.bloodtype_outlined,
                         ),
                         _buildInfoRow(
                           LanguageController.get('allergies') ?? 'Allergies',
-                          userData!['allergies'],
+                          _getSafeString('allergies', 'None specified'),
                           Icons.warning_amber_outlined,
                         ),
                         _buildInfoRow(
                           LanguageController.get('illness') ?? 'Medical Conditions',
-                          userData!['illness'] ?? LanguageController.get('none') ?? 'None',
+                          _getSafeString('illness', LanguageController.get('none') ?? 'None'),
                           Icons.local_hospital_outlined,
                         ),
-                        if (userData!['additional_info']?.isNotEmpty == true)
+                        if (_getSafeString('additional_info', '').isNotEmpty)
                           _buildInfoRow(
                             LanguageController.get('additional') ?? 'Additional Info',
-                            userData!['additional_info'],
+                            _getSafeString('additional_info'),
                             Icons.info_outline,
                           ),
                       ],
@@ -418,7 +430,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 5,
             child: Text(
               value,
               style: TextStyle(
@@ -471,6 +483,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (shouldLogout == true) {
       await StorageService.clearAll();
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      Restart.restartApp();
     }
   }
 }

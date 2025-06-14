@@ -7,7 +7,7 @@ import '../models/family_member.dart';
 class DummyData {
   static Map<String, dynamic> simulateLogin(String login, String password) {
     // Simulate some test users
-    if ((login == 'test' || login == 'kamol') && password == '1') {
+    if ((login == 'AB1234567' || login == 'test@gmail.com') && password == 'test') {
       return {
         'success': true,
         'token': 'dummy_token_12345',
@@ -16,13 +16,14 @@ class DummyData {
           'name': 'Test',
           'surname': 'User',
           'phone': '+998901234567',
+          'email': 'kamoliddinsharopov1@gmail.com',
           'age': 25,
           'gender': 'Male',
           'passport': 'AD1234567',
           'blood_type': 'A+',
           'allergies': 'none',
-          'illness': '',
-          'additional_info': ''
+          'illness': 'none',
+          'additional_info': 'none'
         }
       };
     }
