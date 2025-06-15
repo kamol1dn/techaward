@@ -7,7 +7,7 @@ import '../models/family_member.dart';
 import '../data/dummy_data.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://9c50-213-230-116-6.ngrok-free.app/api/v1';
+  static const String baseUrl = 'https://0919-213-230-114-31.ngrok-free.app/api/v1';
   static bool useTestServer = true;// Toggle for test server simulation
   static bool online = false;
 
@@ -70,7 +70,7 @@ class ApiService {
     }
 
     print('[APP] 🔐 Making HTTP request to: $baseUrl/accounts/login/');
-    final requestBody = {'username': login, 'password': password};
+    final requestBody = {'email': login, 'password': password};
     print('[APP] 🔐 Request body: $requestBody');
 
     final response = await http.post(
@@ -92,12 +92,14 @@ class ApiService {
   static Future<Map<String, dynamic>> completeRegistration(
       PersonalData personal,
       MedicalData medical
-      ) async {
+      )
+
+    async {
     print('[APP] 📋 ApiService.completeRegistration() - Starting...');
     print('[APP] 📋 Personal data: ${personal.toJson()}');
     print('[APP] 📋 Medical data: ${medical.toJson()}');
-
     await init();
+
     print('[APP] 📋 API service initialized');
 
     if (useTestServer) {
@@ -111,7 +113,7 @@ class ApiService {
       return result;
     }
 
-    print('[APP] 📋 Making HTTP request to: $baseUrl/services/register');
+    print('[APP] 📋 Making HTTP request to: $baseUrl/accounts/register');
     final requestBody = {
       'personal': personal.toJson(),
       'medical': medical.toJson(),
@@ -119,7 +121,7 @@ class ApiService {
     print('[APP] 📋 Request body: $requestBody');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/services/register'),
+      Uri.parse('$baseUrl/accounts/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(requestBody),
     );
@@ -583,27 +585,28 @@ class ApiService {
     return result;
   }
 
-  static Future<Map<String, dynamic>> sendOtpToEmail(String phone) async {
+  static Future<Map<String, dynamic>> sendOtpToEmail(String email) async {
+    await init();
     print('[APP] 📱 ApiService.sendOtp() - Starting...');
-    print('[APP] 📱 Phone: $phone');
+    print('[APP] 📱 Email: $email');
 
     if (useTestServer) {
       print('[APP] 📱 Using test server for OTP');
       await Future.delayed(Duration(seconds: 1));
       print('[APP] 📱 Network delay simulation completed');
 
-      final result = DummyData.simulateSendOtp(phone);
+      final result = DummyData.simulateSendOtp(email);
       print('[APP] 📱 Test server response: $result');
       print('[APP] 📱 ApiService.sendOtp() - Completed (test server)');
       return result;
     }
 
-    print('[APP] 📱 Making HTTP request to: $baseUrl/auth/send-otp');
-    final requestBody = {'phone': phone};
+    print('[APP] 📱 Making HTTP request to: $baseUrl/services/auth/request-otp/');
+    final requestBody = {'email': email};
     print('[APP] 📱 Request body: $requestBody');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/send-otp'),
+      Uri.parse('$baseUrl/services/auth/request-otp/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(requestBody),
     );
@@ -633,12 +636,12 @@ class ApiService {
       return result;
     }
 
-    print('[APP] ✅ Making HTTP request to: $baseUrl/auth/verify-otp');
-    final requestBody = {'phone': email, 'otp': otp};
+    print('[APP] ✅ Making HTTP request to: $baseUrl/services/auth/verify-otp/');
+    final requestBody = {'email': email, 'code': otp};
     print('[APP] ✅ Request body: $requestBody');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/verify-otp'),
+      Uri.parse('$baseUrl/services/auth/verify-otp/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(requestBody),
     );
