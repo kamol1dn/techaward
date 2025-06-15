@@ -113,7 +113,7 @@ class ApiService {
       return result;
     }
 
-    print('[APP] 📋 Making HTTP request to: $baseUrl/accounts/register');
+    print('[APP] 📋 Making HTTP request to: $baseUrl/accounts/register/');
     final requestBody = {
       'personal': personal.toJson(),
       'medical': medical.toJson(),
@@ -121,7 +121,7 @@ class ApiService {
     print('[APP] 📋 Request body: $requestBody');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/accounts/register'),
+      Uri.parse('$baseUrl/accounts/register/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(requestBody),
     );
