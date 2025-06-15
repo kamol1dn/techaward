@@ -133,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.red[600]!, Colors.red[400]!],
+                    colors: [Colors.blue[600]!, Colors.blue[400]!],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
@@ -231,12 +231,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   Container(
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.red[50],
+                                      color: Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.contact_mail,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -265,12 +265,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: _emailOtpVerified ? Colors.green[50] : Colors.red[50],
+                                      color: _emailOtpVerified ? Colors.green[50] : Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       _emailOtpVerified ? Icons.verified : Icons.email,
-                                      color: _emailOtpVerified ? Colors.green[600] : Colors.red[600],
+                                      color: _emailOtpVerified ? Colors.green[600] : Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -278,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     onPressed: _sendEmailOtp,
                                     icon: Icon(
                                       Icons.send,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                     ),
                                   ),
                                   border: OutlineInputBorder(
@@ -290,7 +290,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
-                                      color: _emailOtpVerified ? Colors.green[600]! : Colors.red[600]!,
+                                      color: _emailOtpVerified ? Colors.green[600]! : Colors.blue[600]!,
                                       width: 2,
                                     ),
                                   ),
@@ -426,12 +426,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.red[50],
+                                      color: Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.phone,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -446,7 +446,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                    borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                   ),
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -522,12 +522,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   Container(
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.red[50],
+                                      color: Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.person,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -558,7 +558,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                          borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                         ),
                                         filled: true,
                                         fillColor: Colors.grey[50],
@@ -579,7 +579,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                          borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                         ),
                                         filled: true,
                                         fillColor: Colors.grey[50],
@@ -611,7 +611,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                          borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                         ),
                                         filled: true,
                                         fillColor: Colors.grey[50],
@@ -638,7 +638,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                          borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                         ),
                                         filled: true,
                                         fillColor: Colors.grey[50],
@@ -664,12 +664,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.red[50],
+                                      color: Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.badge,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -679,7 +679,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                    borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                   ),
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -700,12 +700,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.red[50],
+                                      color: Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.lock_outline,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -722,7 +722,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                    borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                   ),
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -743,12 +743,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     margin: EdgeInsets.all(12),
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.red[50],
+                                      color: Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.lock_outline,
-                                      color: Colors.red[600],
+                                      color: Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
@@ -765,7 +765,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: Colors.red[600]!, width: 2),
+                                    borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                   ),
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -791,7 +791,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ? Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Colors.red[600]!, Colors.red[400]!],
+                              colors: [Colors.blue[600]!, Colors.blue[400]!],
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -804,12 +804,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Colors.red[600]!, Colors.red[400]!],
+                              colors: [Colors.blue[600]!, Colors.blue[400]!],
                             ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.red.withOpacity(0.3),
+                                color: Colors.blue.withOpacity(0.3),
                                 spreadRadius: 2,
                                 blurRadius: 10,
                                 offset: Offset(0, 5),
@@ -892,7 +892,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.red[600],
+        backgroundColor: Colors.blue[600],
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: EdgeInsets.all(16),
