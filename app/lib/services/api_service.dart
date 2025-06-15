@@ -617,9 +617,9 @@ class ApiService {
     return result;
   }
 
-  static Future<Map<String, dynamic>> verifyEmailOtp(String phone, String otp) async {
+  static Future<Map<String, dynamic>> verifyEmailOtp(String email, String otp) async {
     print('[APP] ✅ ApiService.verifyOtp() - Starting...');
-    print('[APP] ✅ Phone: $phone');
+    print('[APP] ✅ Email: $email');
     print('[APP] ✅ OTP: $otp');
 
     if (useTestServer) {
@@ -627,14 +627,14 @@ class ApiService {
       await Future.delayed(Duration(seconds: 1));
       print('[APP] ✅ Network delay simulation completed');
 
-      final result = DummyData.simulateVerifyOtp(phone, otp);
+      final result = DummyData.simulateVerifyOtp(email, otp);
       print('[APP] ✅ Test server response: $result');
       print('[APP] ✅ ApiService.verifyOtp() - Completed (test server)');
       return result;
     }
 
     print('[APP] ✅ Making HTTP request to: $baseUrl/auth/verify-otp');
-    final requestBody = {'phone': phone, 'otp': otp};
+    final requestBody = {'phone': email, 'otp': otp};
     print('[APP] ✅ Request body: $requestBody');
 
     final response = await http.post(
