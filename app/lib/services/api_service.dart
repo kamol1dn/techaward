@@ -7,7 +7,7 @@ import '../models/family_member.dart';
 import '../data/dummy_data.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://0919-213-230-114-31.ngrok-free.app/api/v1';
+  static const String baseUrl = 'https://8322-213-230-112-236.ngrok-free.app/api/v1';
   static bool useTestServer = true;// Toggle for test server simulation
   static bool online = false;
 
