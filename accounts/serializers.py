@@ -2,45 +2,51 @@ from rest_framework import serializers
 
 from accounts.models import CustomUser, MedicalRecord, GENDER_CHOICES, BLOOD_TYPE_CHOICES
 
-
-class RegisterSerializer(serializers.Serializer):
-    # Personal fields
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    age = serializers.IntegerField()
-    gender = serializers.ChoiceField(choices=GENDER_CHOICES)
-    passport_series = serializers.CharField()
+class PersonalDataSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
+    name = serializers.CharField()
+    surname = serializers.CharField()
+    age = serializers.IntegerField()
+    gender = serializers.ChoiceField(choices=GENDER_CHOICES)
+    passport = serializers.CharField()
 
-    # Medical fields
+
+
+class MedicalDataSerializer(serializers.Serializer):
     blood_type = serializers.ChoiceField(choices=BLOOD_TYPE_CHOICES)
     allergies = serializers.CharField()
-    ongoing_illness = serializers.CharField()
-    additional_info = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    illness = serializers.CharField()
+    additional_info = serializers.CharField(required=False, allow_blank=True)
 
-    def validate(self, data):
-        if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError("Passwords do not match.")
-        return data
+
+
+class RegisterSerializer(serializers.Serializer):
+    personal = PersonalDataSerializer()
+    medical = MedicalDataSerializer()
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        validated_data.pop('confirm_password')
+        personal = validated_data['personal']
+        medical = validated_data['medical']
 
-        # Split medical data from user data
-        medical_data = {
-            'blood_type': validated_data.pop('blood_type'),
-            'allergies': validated_data.pop('allergies'),
-            'ongoing_illness': validated_data.pop('ongoing_illness'),
-            'additional_info': validated_data.pop('additional_info', ''),
-        }
+        password = personal.pop('password')
 
-        # Create the user
-        user = CustomUser.objects.create_user(password=password, **validated_data)
+        user = CustomUser.objects.create_user(
+            email=personal['email'],
+            first_name=personal['name'],
+            last_name=personal['surname'],
+            age=personal['age'],
+            gender=personal['gender'],
+            passport_series=personal['passport'],
+            password=password
+        )
 
-        # Create the related medical record
-        MedicalRecord.objects.create(user=user, **medical_data)
+        MedicalRecord.objects.create(
+            user=user,
+            blood_type=medical['blood_type'],
+            allergies=medical['allergies'],
+            ongoing_illness=medical['illness'],
+            additional_info=medical.get('additional_info', '')
+        )
 
         return user

@@ -16,7 +16,7 @@ class RegisterAPIView(generics.CreateAPIView):
         user = serializer.save()
 
         return Response({
-            "id": user.id,
-            "email": user.email,
+            "success": True,
+            "token": f"user_token_{user.id}_{user.email}",
             "message": "User registered successfully."},
             status=status.HTTP_201_CREATED)

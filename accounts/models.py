@@ -3,8 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 GENDER_CHOICES = [
-    ('male', 'Male'),
-    ('female', 'Female'),
+    ('Male', 'Male'),
+    ('Female', 'Female'),
 ]
 
 BLOOD_TYPE_CHOICES = [
@@ -43,7 +43,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     age = models.PositiveIntegerField()
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    passport_series = models.CharField(max_length=20, unique=True)
+    passport_series = models.CharField(max_length=20)
 
     objects = CustomUserManager()
 
