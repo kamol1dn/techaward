@@ -1,6 +1,8 @@
-
 import 'package:flutter/material.dart';
 import '../../language/language_controller.dart';
+// Import your new screens here
+import 'family_circle_screen.dart';
+import 'emergency_contacts_screen.dart';
 
 class FamilyScreen extends StatefulWidget {
   const FamilyScreen({super.key});
@@ -128,11 +130,19 @@ class _FamilyScreenState extends State<FamilyScreen> {
               child: ListView(
                 children: [
                   _buildServiceCard(
+                    LanguageController.get('family_circle') ?? 'Family Circle',
+                    Icons.group,
+                    Colors.green[600]!,
+                    LanguageController.get('manage_family_members') ?? 'Manage your family members',
+                        () => _navigateToFamilyCircle(context),
+                  ),
+                  SizedBox(height: 16),
+                  _buildServiceCard(
                     LanguageController.get('emergency_contacts') ?? 'Emergency Contacts',
                     Icons.contact_emergency,
                     Colors.red[600]!,
                     LanguageController.get('manage_emergency_contacts') ?? 'Add and manage emergency contacts',
-                        () => _showComingSoon(context, 'Emergency Contacts'),
+                        () => _navigateToEmergencyContacts(context),
                   ),
                   SizedBox(height: 16),
                   _buildServiceCard(
@@ -141,30 +151,6 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     Colors.blue[600]!,
                     LanguageController.get('share_location_with_family') ?? 'Share your location with family members',
                         () => _showComingSoon(context, 'Location Sharing'),
-                  ),
-                  SizedBox(height: 16),
-                  _buildServiceCard(
-                    LanguageController.get('emergency_alerts') ?? 'Emergency Alerts',
-                    Icons.notification_important,
-                    Colors.orange[600]!,
-                    LanguageController.get('setup_family_alerts') ?? 'Setup emergency notification system',
-                        () => _showComingSoon(context, 'Emergency Alerts'),
-                  ),
-                  SizedBox(height: 16),
-                  _buildServiceCard(
-                    LanguageController.get('family_circle') ?? 'Family Circle',
-                    Icons.group,
-                    Colors.green[600]!,
-                    LanguageController.get('manage_family_members') ?? 'Manage your family members',
-                        () => _showComingSoon(context, 'Family Circle'),
-                  ),
-                  SizedBox(height: 16),
-                  _buildServiceCard(
-                    LanguageController.get('medical_info') ?? 'Medical Information',
-                    Icons.medical_information,
-                    Colors.purple[600]!,
-                    LanguageController.get('family_medical_information') ?? 'Store important medical information',
-                        () => _showComingSoon(context, 'Medical Information'),
                   ),
                 ],
               ),
@@ -198,7 +184,6 @@ class _FamilyScreenState extends State<FamilyScreen> {
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-
             ),
             child: Row(
               children: [
@@ -258,6 +243,25 @@ class _FamilyScreenState extends State<FamilyScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Navigation methods
+  void _navigateToFamilyCircle(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FamilyCircleScreen(),
+      ),
+    );
+  }
+
+  void _navigateToEmergencyContacts(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EmergencyContactsScreen(),
       ),
     );
   }
