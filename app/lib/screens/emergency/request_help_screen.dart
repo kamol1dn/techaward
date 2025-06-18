@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/emergency_request.dart';
-import '../../services/api_service.dart';
+
+import '../../services/api/api_service.dart';
 import '../../services/storage_service.dart';
 import 'home_screen.dart';
 

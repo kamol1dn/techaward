@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/api/api_service.dart';
 import 'register_medical_screen.dart';
-import '../../services/api_service.dart';
+
 import '../../models/user_model.dart';
 import '../../language/language_controller.dart';
 
