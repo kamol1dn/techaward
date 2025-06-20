@@ -10,7 +10,10 @@ class ApiService {
   static const String baseUrl = Urls.apiBaseUrl;
   static bool useTestServer = true;// Toggle for test server simulation
   static bool online = false;
+  ApiService()
+  {
 
+  }
   static Future<void> init() async {
     print('[APP] 🚀 ApiService.init() - Starting...');
     print('[APP] 🚀 Base URL: $baseUrl');
@@ -70,7 +73,7 @@ class ApiService {
     }
 
     print('[APP] 🔐 Making HTTP request to: $baseUrl/accounts/login/');
-    final requestBody = {'email': login, 'password': password};
+    final requestBody = {'identifier': login, 'password': password};
     print('[APP] 🔐 Request body: $requestBody');
 
     final response = await http.post(
