@@ -1,9 +1,7 @@
 from django.urls import path
-from .views import Emergency,EmergencyRequestList
-from rest_framework_simplejwt.views import TokenRefreshView
+from .views import Emergency
 urlpatterns=[
     path('service',Emergency.as_view(),name='emergency'),
-    path('get',EmergencyRequestList.as_view(),name='emergency'),
 
 
 ]

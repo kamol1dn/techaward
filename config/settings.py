@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # local
     'rest_framework',
     'EmergencyServices',
+    'dashboard',
 
     # 3rd party
     'corsheaders',

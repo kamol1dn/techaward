@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/', include(
         [
             path('emergency/', include('EmergencyServices.urls')),
+            path('request/', include('dashboard.urls')),
         ]
     ))
 ]
