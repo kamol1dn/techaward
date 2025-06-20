@@ -270,6 +270,7 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> verifyEmailOtp(String email, String otp) async {
+    await init();
     print('[APP] ✅ ApiService.verifyOtp() - Starting...');
     print('[APP] ✅ Email: $email');
     print('[APP] ✅ OTP: $otp');
