@@ -56,21 +56,28 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
   Future<void> _toggleEmergencyContact(FamilyMember member) async {
     try {
-      final newEmergencyStatus = !(member.isEmergencyContact ?? false);
+      final newEmergencyStatus = !member.isEmergencyContact;
 
       final updateRequest = UpdateMemberRequest(
         name: member.name,
         phone: member.phone,
-        isEmergencyContact: newEmergencyStatus, // Add this field
-        relation: member.relation, // Keep original relation
+        isEmergencyContact: newEmergencyStatus,
+        relation: member.relation,
       );
 
       final response = await FamilyApiService.updateMember(member.memberId, updateRequest);
 
       if (response['success']) {
-        // Update local state only after API success
-        member.isEmergencyContact = newEmergencyStatus;
-        await FamilyStorageService.updateMemberInStorage(member);
+        // Update the member in the allMembers list
+        final memberIndex = allMembers.indexWhere((m) => m.memberId == member.memberId);
+        if (memberIndex != -1) {
+          allMembers[memberIndex] = member.copyWith(isEmergencyContact: newEmergencyStatus);
+        }
+
+        // Save to storage
+        await FamilyStorageService.updateMemberInStorage(allMembers[memberIndex]);
+
+        // Reload data to refresh the UI
         _loadData();
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,8 +97,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
         SnackBar(content: Text('Error updating contact: $e')),
       );
     }
-  }
-  @override
+  }  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

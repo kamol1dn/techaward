@@ -61,7 +61,8 @@ class _FamilyScreenState extends State<FamilyScreen> {
                               ),
                               SizedBox(width: 4),
                               Text(
-                                'Family Hub',
+                                //'Family Hub',
+                                LanguageController.get('family_hub') ?? 'Family Hub',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,

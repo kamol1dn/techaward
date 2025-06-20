@@ -272,7 +272,7 @@ class _EditSettingsScreenState extends State<EditSettingsScreen> {
             child: Column(
               children: [
                 // Personal Information Section
-         git        _buildSectionCard(
+                _buildSectionCard(
                   title: LanguageController.get('personal_info') ?? 'Personal Information',
                   icon: Icons.person_outline,
                   children: [

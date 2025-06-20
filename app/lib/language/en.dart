@@ -33,6 +33,36 @@ final Map<String, String> en = {
   'police_emergency': 'Law Enforcement',
   'other_emergency': 'General Help',
   'tap_to_continue': 'Tap to continue',
+  'car_accident': 'Car Accident',
+  'car_crash_emergency': 'When you encounter car accidents',
+  //emergency request screen
+  'type_ambulance': 'Ambulance help',
+  'type_fire': 'Fire emergency help',
+  'type_police': 'Police help',
+  'type_car_accident': 'Car Accident help',
+  'type_other': 'Other help',
+  'who_needs_help': 'Who needs help?',
+  'me': 'Me',
+  'other_person': 'Other person',
+
+  'family_member': 'Family Member',
+  'additional_details': 'Additional Details',
+  'location': 'Location',
+  'no_family_members_found': 'No family members found. You can add family members in the Family section.',
+  'select_family_member': 'Select family member',
+  'please_select_family_member': 'Please select a family member',
+  'label_additional_details': 'Additional Details',
+  'hint_describe_situation': 'Describe the situation...',
+  'hint_describe_family_member': 'Describe what happened to your family member...',
+  'label_location': 'Location',
+  'send_emergency_request': 'Send Emergency Request',
+  'sending_emergency_request': 'Sending Emergency Request...',
+  'take_photo': 'Take Photo (Optional)',
+  'photo_taken': 'Photo Taken',
+  'hint_current_location': 'Current location will be used if empty',
+  'send_via_sms': 'Send via SMS',
+
+
 
   // login screen
   'login': "Login",
@@ -86,6 +116,9 @@ final Map<String, String> en = {
   'overview': 'Overview',
   'detailed_guide': 'Detailed Guide',
   'emergency_reminder': 'Remember: In real emergencies, call emergency services immediately!',
+  'help_quick_access': 'Tutorials & Guides',
+
+
 
   // settings/profile screen
   'profile_appbar': 'My profile & settings',
@@ -129,6 +162,7 @@ final Map<String, String> en = {
 
   //family screen
   // Add these keys to your language controller/files:
+  'family_hub': 'Family circle',
   'navbar_family': 'Family',
   'family_title': 'Family & Emergency',
   'emergency_contacts': 'Emergency Contacts',
@@ -142,4 +176,6 @@ final Map<String, String> en = {
   'family_medical_information': 'Store important medical information',
   'family_quick_access': 'Family Emergency Management',
   'family_description': 'Manage emergency contacts, sharing, and family safety features',
+
+
 };
