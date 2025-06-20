@@ -4,4 +4,5 @@ from EmergencyServices.models import EmergencyRequest
 class EmergencyGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmergencyRequest
-        fields = ['type','location', 'extra_info','date_created']
+        fields = ['id','type','status','date_created','assigned_to','location','extra_info']
+        read_only_fields = ['id','type','date_created','location','extra_info']
