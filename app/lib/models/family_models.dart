@@ -67,7 +67,7 @@ class FamilyMember {
   final String? phone;
   final String? userId; // null if not a registered user
   final String? medicalInfo;
-  late final bool isEmergencyContact;
+  bool isEmergencyContact; // Changed from 'late final' to just 'bool'
   final MemberLocation? location;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -143,7 +143,6 @@ class FamilyMember {
     );
   }
 }
-
 class MemberLocation {
   final double lat;
   final double lng;

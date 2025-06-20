@@ -219,6 +219,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     LanguageController.get('police_emergency') ?? 'Law Enforcement',
                   ),
                   _buildServiceCard(
+                    LanguageController.get('car_accident') ?? 'Car accident',
+                    Icons.car_crash,
+                    Colors.green[600]!,
+                    EmergencyType.car_accident,
+                    LanguageController.get('car_crash_emergency') ?? 'Car Accident',
+                  ),
+                  _buildServiceCard(
                     LanguageController.get('other') ?? 'Other Services',
                     Icons.more_horiz,
                     Colors.grey[600]!,
@@ -332,4 +339,4 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-enum EmergencyType { ambulance, fire, police, others }
+enum EmergencyType { ambulance, fire, police, car_accident, others }
