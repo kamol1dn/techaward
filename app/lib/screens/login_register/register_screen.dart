@@ -31,6 +31,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isVerifyingOtp = false;
+  bool _isSendingOtp = false;
 
   // Phone number formatting helper
   String _formatPhoneNumber(String phone) {
@@ -67,7 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() => _isSendingOtp = true);
 
     try {
       // Use ApiService to send OTP to email
@@ -76,15 +78,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response['success']) {
         setState(() {
           _emailOtpSent = true;
-          _isLoading = false;
+          _isSendingOtp = false;
         });
         _showSuccess(LanguageController.get('otp_sent_success') ?? 'OTP sent to your email successfully');
       } else {
-        setState(() => _isLoading = false);
+        setState(() => _isSendingOtp = false);
         _showError(response['message'] ?? (LanguageController.get('otp_send_failed') ?? 'Failed to send OTP'));
       }
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() => _isSendingOtp = false);
       _showError(LanguageController.get('network_error') ?? 'Network error. Please try again.');
     }
   }
@@ -96,7 +98,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    if (_otpController.text.trim().length != 6) {
+      _showError(LanguageController.get('invalid_otp_length') ?? 'OTP must be 6 digits');
+      return;
+    }
+
+    setState(() => _isVerifyingOtp = true);
 
     try {
       // Use ApiService to verify OTP
@@ -108,17 +115,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response['success']) {
         setState(() {
           _emailOtpVerified = true;
-          _isLoading = false;
+          _isVerifyingOtp = false;
         });
         _showSuccess(LanguageController.get('email_verified_success') ?? 'Email verified successfully');
       } else {
-        setState(() => _isLoading = false);
+        setState(() => _isVerifyingOtp = false);
         _showError(response['message'] ?? (LanguageController.get('otp_verification_failed') ?? 'OTP verification failed'));
       }
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() => _isVerifyingOtp = false);
       _showError(LanguageController.get('network_error') ?? 'Network error. Please try again.');
     }
+  }
+
+  // Resend OTP
+  Future<void> _resendOtp() async {
+    setState(() {
+      _otpController.clear();
+      _emailOtpSent = false;
+    });
+    await _sendEmailOtp();
   }
 
   @override
@@ -208,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Contact Information Section
+                      // Email Verification Section
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -232,29 +248,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   Container(
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.blue[50],
+                                      color: _emailOtpVerified ? Colors.green[50] : Colors.blue[50],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
-                                      Icons.contact_mail,
-                                      color: Colors.blue[600],
+                                      _emailOtpVerified ? Icons.verified_user : Icons.email_outlined,
+                                      color: _emailOtpVerified ? Colors.green[600] : Colors.blue[600],
                                       size: 20,
                                     ),
                                   ),
                                   SizedBox(width: 12),
                                   Text(
-                                    LanguageController.get('contact_information') ?? 'Contact Information',
+                                    LanguageController.get('email_verification') ?? 'Email Verification',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.grey[800],
                                     ),
                                   ),
+                                  if (_emailOtpVerified) ...[
+                                    SizedBox(width: 8),
+                                    Icon(Icons.check_circle, color: Colors.green[600], size: 20),
+                                  ],
                                 ],
                               ),
                               SizedBox(height: 20),
 
-                              // Email Field with OTP verification
+                              // Email input
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
@@ -273,13 +293,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       _emailOtpVerified ? Icons.verified : Icons.email,
                                       color: _emailOtpVerified ? Colors.green[600] : Colors.blue[600],
                                       size: 20,
-                                    ),
-                                  ),
-                                  suffixIcon: _emailOtpVerified ? null : IconButton(
-                                    onPressed: _sendEmailOtp,
-                                    icon: Icon(
-                                      Icons.send,
-                                      color: Colors.blue[600],
                                     ),
                                   ),
                                   border: OutlineInputBorder(
@@ -307,9 +320,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 },
                               ),
 
-                              // Email verification status
-                              if (_emailOtpVerified) ...[
-                                SizedBox(height: 12),
+                              SizedBox(height: 16),
+
+                              // Send OTP Button or verification status
+                              if (!_emailOtpVerified) ...[
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: ElevatedButton.icon(
+                                    onPressed: _isSendingOtp ? null : _sendEmailOtp,
+                                    icon: _isSendingOtp
+                                        ? SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                        : Icon(Icons.send, size: 18),
+                                    label: Text(
+                                      _isSendingOtp
+                                          ? (LanguageController.get('sending_otp') ?? 'Sending...')
+                                          : (_emailOtpSent
+                                          ? (LanguageController.get('resend_otp') ?? 'Resend OTP')
+                                          : (LanguageController.get('send_otp') ?? 'Send Verification Code')),
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue[600],
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                // Email verified status
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
@@ -322,7 +370,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       Icon(Icons.check_circle, color: Colors.green[600], size: 20),
                                       SizedBox(width: 12),
                                       Text(
-                                        LanguageController.get('email_verified') ?? '✓ Email Verified',
+                                        LanguageController.get('email_verified') ?? 'Email Verified Successfully',
                                         style: TextStyle(
                                           color: Colors.green[700],
                                           fontWeight: FontWeight.w500,
@@ -344,26 +392,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     LengthLimitingTextInputFormatter(6),
                                   ],
                                   decoration: InputDecoration(
-                                    labelText: LanguageController.get('otp_code') ?? 'OTP Code',
+                                    labelText: LanguageController.get('otp_code') ?? 'Verification Code',
                                     hintText: LanguageController.get('enter_otp') ?? 'Enter 6-digit code',
                                     prefixIcon: Container(
                                       margin: EdgeInsets.all(12),
                                       padding: EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange[50],
+                                        color: Colors.amber[50],
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Icon(
                                         Icons.pin,
-                                        color: Colors.orange[600],
+                                        color: Colors.amber[700],
                                         size: 20,
-                                      ),
-                                    ),
-                                    suffixIcon: IconButton(
-                                      onPressed: _verifyEmailOtp,
-                                      icon: Icon(
-                                        Icons.verified_user,
-                                        color: Colors.green[600],
                                       ),
                                     ),
                                     border: OutlineInputBorder(
@@ -372,19 +413,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.orange[600]!, width: 2),
+                                      borderSide: BorderSide(color: Colors.amber[600]!, width: 2),
                                     ),
                                     filled: true,
-                                    fillColor: Colors.orange[50],
+                                    fillColor: Colors.amber[50],
                                   ),
                                   validator: (value) {
                                     if (!_emailOtpVerified && value?.isEmpty == true) {
                                       return LanguageController.get('enter_otp') ?? 'Please enter OTP code';
                                     }
+                                    if (!_emailOtpVerified && value!.length != 6) {
+                                      return LanguageController.get('invalid_otp_length') ?? 'OTP must be 6 digits';
+                                    }
                                     return null;
                                   },
                                 ),
+                                SizedBox(height: 16),
+
+                                // Verify OTP Button
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: ElevatedButton.icon(
+                                    onPressed: _isVerifyingOtp ? null : _verifyEmailOtp,
+                                    icon: _isVerifyingOtp
+                                        ? SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                        : Icon(Icons.verified_user, size: 18),
+                                    label: Text(
+                                      _isVerifyingOtp
+                                          ? (LanguageController.get('verifying') ?? 'Verifying...')
+                                          : (LanguageController.get('verify_code') ?? 'Verify Code'),
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green[600],
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
                                 SizedBox(height: 12),
+
+                                // OTP info message
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
@@ -392,101 +472,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(color: Colors.blue[200]!),
                                   ),
-                                  child: Row(
+                                  child: Column(
                                     children: [
-                                      Icon(Icons.info_outline, color: Colors.blue[600], size: 20),
-                                      SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          LanguageController.get('otp_sent_info') ?? 'OTP code sent to your email. Please check your inbox.',
-                                          style: TextStyle(
-                                            color: Colors.blue[700],
-                                            fontSize: 12,
+                                      Row(
+                                        children: [
+                                          Icon(Icons.info_outline, color: Colors.blue[600], size: 20),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              LanguageController.get('otp_sent_info') ?? 'Check your email for the verification code.',
+                                              style: TextStyle(
+                                                color: Colors.blue[700],
+                                                fontSize: 12,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-
-                              SizedBox(height: 20),
-
-                              // Phone Field (no verification required)
-                              TextFormField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(9),
-                                ],
-                                decoration: InputDecoration(
-                                  labelText: LanguageController.get('phone_number') ?? 'Phone Number',
-                                  hintText: LanguageController.get('enter_phone_hint') ?? 'Enter 9 digits',
-                                  prefixIcon: Container(
-                                    margin: EdgeInsets.all(12),
-                                    padding: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[50],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.phone,
-                                      color: Colors.blue[600],
-                                      size: 20,
-                                    ),
-                                  ),
-                                  prefixText: '+998 ',
-                                  prefixStyle: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.grey[50],
-                                ),
-                                validator: (value) {
-                                  if (value?.isEmpty == true) return LanguageController.get('required') ?? 'Required';
-                                  if (value!.length != 9) {
-                                    return LanguageController.get('invalid_phone_length') ?? 'Phone number must be 9 digits';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (value) {
-                                  // Auto-format as user types
-                                  if (value.length == 9) {
-                                    // Could show a preview of full number if needed
-                                  }
-                                },
-                              ),
-
-                              // Show formatted phone preview
-                              if (_phoneController.text.length == 9) ...[
-                                SizedBox(height: 8),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green[50],
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.green[200]!),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.check_circle, color: Colors.green[600], size: 16),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        '${LanguageController.get('phone_preview') ?? 'Phone'}: ${_getFormattedPhoneForJson()}',
-                                        style: TextStyle(
-                                          color: Colors.green[700],
-                                          fontSize: 12,
-                                        ),
+                                      SizedBox(height: 8),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          TextButton(
+                                            onPressed: _isSendingOtp ? null : _resendOtp,
+                                            child: Text(
+                                              LanguageController.get('resend_otp') ?? 'Resend Code',
+                                              style: TextStyle(
+                                                color: Colors.blue[600],
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -591,6 +609,83 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ],
                               ),
+                              SizedBox(height: 20),
+
+                              // Phone Field (moved here)
+                              TextFormField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(9),
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: LanguageController.get('phone_number') ?? 'Phone Number',
+                                  hintText: LanguageController.get('enter_phone_hint') ?? 'Enter 9 digits',
+                                  prefixIcon: Container(
+                                    margin: EdgeInsets.all(12),
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.phone,
+                                      color: Colors.blue[600],
+                                      size: 20,
+                                    ),
+                                  ),
+                                  prefixText: '+998 ',
+                                  prefixStyle: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                ),
+                                validator: (value) {
+                                  if (value?.isEmpty == true) return LanguageController.get('required') ?? 'Required';
+                                  if (value!.length != 9) {
+                                    return LanguageController.get('invalid_phone_length') ?? 'Phone number must be 9 digits';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              // Show formatted phone preview
+                              if (_phoneController.text.length == 9) ...[
+                                SizedBox(height: 8),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.green[200]!),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.check_circle, color: Colors.green[600], size: 16),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        '${LanguageController.get('phone_preview') ?? 'Phone'}: ${_getFormattedPhoneForJson()}',
+                                        style: TextStyle(
+                                          color: Colors.green[700],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+
                               SizedBox(height: 20),
 
                               // Age and Gender Row
