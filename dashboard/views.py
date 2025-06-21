@@ -13,7 +13,7 @@ class EmergencyRequestList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# views.py
+
 class AssignDoctorView(APIView):
     def patch(self, request, pk):
         emergency = get_object_or_404(EmergencyRequest, pk=pk)
