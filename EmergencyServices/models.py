@@ -9,7 +9,7 @@ HELP_CHOICES = [
 STATUS_CHOICES=[
     ('pending','Pending'),
     ('in progress', 'In Progress'),
-    ('resolved', 'resolved')
+    ('resolved', 'Resolved')
 ]
 class EmergencyRequest(models.Model):
     type=models.CharField(max_length=25)
