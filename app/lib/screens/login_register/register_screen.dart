@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/api/api_service.dart';
 import 'register_medical_screen.dart';
-
+import 'dart:async';
 import '../../models/user_model.dart';
 import '../../language/language_controller.dart';
 
@@ -24,6 +24,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passportController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  Timer? _otpTimer;
+  int _otpCountdown = 0;
+  bool _canResendOtp = true;
 
   String _selectedGender = 'Male';
   bool _emailOtpSent = false;
@@ -52,12 +56,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return phone;
   }
 
+  void _startOtpTimer() {
+    setState(() {
+      _otpCountdown = 90; // 1:30 minutes
+      _canResendOtp = false;
+    });
+
+    _otpTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_otpCountdown > 0) {
+          _otpCountdown--;
+        } else {
+          _canResendOtp = true;
+          timer.cancel();
+        }
+      });
+    });
+  }
+  String _formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(1, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+
   String _getFormattedPhoneForJson() {
     String phone = _phoneController.text.trim();
     return _formatPhoneNumber(phone);
   }
 
   // Send OTP to email
+
   Future<void> _sendEmailOtp() async {
     if (_emailController.text.trim().isEmpty) {
       _showError(LanguageController.get('enter_email') ?? 'Please enter your email');
@@ -72,7 +101,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isSendingOtp = true);
 
     try {
-      // Use ApiService to send OTP to email
       final response = await ApiService.sendOtpToEmail(_emailController.text.trim());
 
       if (response['success']) {
@@ -80,7 +108,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _emailOtpSent = true;
           _isSendingOtp = false;
         });
-        _showSuccess(LanguageController.get('otp_sent_success') ?? 'OTP sent to your email successfully');
+        _startOtpTimer(); // Start the timer
+        _showSuccess(LanguageController.get('otp_sent_success') ?? 'Verification code sent to your email');
       } else {
         setState(() => _isSendingOtp = false);
         _showError(response['message'] ?? (LanguageController.get('otp_send_failed') ?? 'Failed to send OTP'));
@@ -90,6 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _showError(LanguageController.get('network_error') ?? 'Network error. Please try again.');
     }
   }
+
 
   // Verify OTP
   Future<void> _verifyEmailOtp() async {
@@ -129,7 +159,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   // Resend OTP
+
   Future<void> _resendOtp() async {
+    if (!_canResendOtp) return;
+
     setState(() {
       _otpController.clear();
       _emailOtpSent = false;
@@ -328,7 +361,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   width: double.infinity,
                                   height: 48,
                                   child: ElevatedButton.icon(
-                                    onPressed: _isSendingOtp ? null : _sendEmailOtp,
+                                    onPressed: (_isSendingOtp || (_emailOtpSent && !_canResendOtp)) ? null : _sendEmailOtp,
                                     icon: _isSendingOtp
                                         ? SizedBox(
                                       width: 16,
@@ -343,7 +376,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       _isSendingOtp
                                           ? (LanguageController.get('sending_otp') ?? 'Sending...')
                                           : (_emailOtpSent
-                                          ? (LanguageController.get('resend_otp') ?? 'Resend OTP')
+                                          ? (!_canResendOtp
+                                          ? 'Resend in ${_formatTime(_otpCountdown)}'
+                                          : (LanguageController.get('resend_otp') ?? 'Resend Code'))
                                           : (LanguageController.get('send_otp') ?? 'Send Verification Code')),
                                       style: TextStyle(fontWeight: FontWeight.w600),
                                     ),
@@ -383,6 +418,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                               // OTP input field (show only if OTP is sent but not verified)
                               if (_emailOtpSent && !_emailOtpVerified) ...[
+
                                 SizedBox(height: 20),
                                 TextFormField(
                                   controller: _otpController,
@@ -398,12 +434,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       margin: EdgeInsets.all(12),
                                       padding: EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: Colors.amber[50],
+                                        color: Colors.white,
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Icon(
                                         Icons.pin,
-                                        color: Colors.amber[700],
+                                        color: Colors.blue[700],
                                         size: 20,
                                       ),
                                     ),
@@ -413,10 +449,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.amber[600]!, width: 2),
+                                      borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
                                     ),
                                     filled: true,
-                                    fillColor: Colors.amber[50],
+                                    fillColor: Colors.white,
                                   ),
                                   validator: (value) {
                                     if (!_emailOtpVerified && value?.isEmpty == true) {
@@ -465,6 +501,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 SizedBox(height: 12),
 
                                 // OTP info message
+
+// OTP info and resend section
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
@@ -476,39 +514,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(Icons.info_outline, color: Colors.blue[600], size: 20),
+                                          Icon(Icons.email_outlined, color: Colors.blue[600], size: 20),
                                           SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
-                                              LanguageController.get('otp_sent_info') ?? 'Check your email for the verification code.',
+                                              'Code sent to ${_emailController.text.trim()}',
                                               style: TextStyle(
                                                 color: Colors.blue[700],
-                                                fontSize: 12,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          TextButton(
-                                            onPressed: _isSendingOtp ? null : _resendOtp,
-                                            child: Text(
-                                              LanguageController.get('resend_otp') ?? 'Resend Code',
+                                      if (!_canResendOtp) ...[
+                                        SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.timer_outlined, color: Colors.blue[600], size: 16),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Resend available in ${_formatTime(_otpCountdown)}',
                                               style: TextStyle(
                                                 color: Colors.blue[600],
-                                                fontWeight: FontWeight.w600,
                                                 fontSize: 12,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                          ],
+                                        ),
+                                      ] else ...[
+                                        SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            TextButton.icon(
+                                              onPressed: _isSendingOtp ? null : _resendOtp,
+                                              icon: Icon(Icons.refresh, size: 16),
+                                              label: Text(
+                                                LanguageController.get('resend_otp') ?? 'Resend Code',
+                                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                              ),
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: Colors.blue[600],
+                                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
+
                               ],
                             ],
                           ),
@@ -1012,5 +1072,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         margin: EdgeInsets.all(16),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _otpTimer?.cancel();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
+    _nameController.dispose();
+    _surnameController.dispose();
+    _ageController.dispose();
+    _passportController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 }

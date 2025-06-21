@@ -79,6 +79,8 @@ final Map<String, String> en = {
   'login_subtitle': 'Sign in to access emergency services',
   'welcome_back': 'Welcome back!',
   'login_description': 'Please sign in to your account',
+  'forgot_password' : 'Forgot Password?',
+
 
   // register screen
   'create_account': "Create account",
@@ -110,6 +112,7 @@ final Map<String, String> en = {
   'otp_verification_failed': 'OTP verification failed',
   'email_verification_required': 'Please verify your email first',
   'otp_sent_info': 'OTP code sent to your email. Please check your inbox.',
+  'resend_otp': 'Resend OTP',
 
   // help/guides screen
   'help_description': 'Learn how to use emergency\nservices effectively',

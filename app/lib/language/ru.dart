@@ -76,8 +76,9 @@ final Map<String, String> ru = {
   'login_fail': "Вход не удался!",
   'no_account': "Нет аккаунта?",
   'login_subtitle': 'Войдите для доступа к службам экстренного реагирования',
-  'welcome_back': 'Добро пожаловать обратно!',
+  'welcome_back': 'Добро пожаловать!',
   'login_description': 'Пожалуйста, войдите в ваш аккаунт',
+  'forgot_password' : 'Забыли пароль?',
 
   // register screen
   'create_account': "Создать аккаунт",
@@ -109,6 +110,7 @@ final Map<String, String> ru = {
   'otp_verification_failed': 'Подтверждение OTP не удалось',
   'email_verification_required': 'Пожалуйста, сначала подтвердите ваш email',
   'otp_sent_info': 'OTP код отправлен на ваш email. Пожалуйста, проверьте входящие сообщения.',
+  'resend_otp': 'Отправить код повторно',
 
   // help/guides screen
   'help_description': 'Изучите, как эффективно\nиспользовать службы экстренного реагирования',
