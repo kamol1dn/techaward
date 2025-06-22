@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../models/user_model.dart';
 import '../../models/emergency_request.dart';
 import './url.dart';
+import '../../services/storage_service.dart';
 
 import '../../data/dummy_data.dart';
 
@@ -194,13 +195,14 @@ class ApiService {
     try {
       print('[APP] ✏️ Making HTTP request to: $baseUrl/accounts/profile/update/');
       print('[APP] ✏️ Request body: $userData');
-
+      //final token = await _getToken(); // Get stored JWT token
       final response = await http.put(
         Uri.parse('$baseUrl/accounts/profile/update/'),
         headers: {
           'Content-Type': 'application/json',
+          //'Authorization': 'Bearer $token',
           // Add authorization header if needed
-          // 'Authorization': 'Bearer ${await StorageService.getUserToken()}',
+          'Authorization': 'Bearer ${await StorageService.getUserToken()}',
         },
         body: jsonEncode(userData),
       );
