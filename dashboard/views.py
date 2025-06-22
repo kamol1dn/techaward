@@ -1,28 +1,41 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from EmergencyServices.models import EmergencyRequest
 from .serializers import EmergencyGetSerializer
-from rest_framework.generics import get_object_or_404
 class EmergencyRequestList(APIView):
     serializer_class=EmergencyGetSerializer
 
     def get(self, request):
         emergencies = EmergencyRequest.objects.all()
-        serializer = EmergencyGetSerializer(emergencies, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user_data=request.session.get("user_data")
+        if emergencies.exists():
+            serializer = EmergencyGetSerializer(emergencies, many=True)
+            info={'request': serializer.data, 'user_data': user_data}
+            return Response(info, status=status.HTTP_200_OK)
+        else:
+            return Response(data={'message': 'Failed, user data and request not found'},status=status.HTTP_400_BAD_REQUEST)
 
 
 
 class AssignDoctorView(APIView):
     def patch(self, request, pk):
-        emergency = get_object_or_404(EmergencyRequest, pk=pk)
-        serializer = EmergencyGetSerializer(emergency, data=request.data, partial=True)
+        try:
+            instance = get_object_or_404(EmergencyRequest, pk=pk)
+        except EmergencyRequest.DoesNotExist:
+            return Response({'message': 'Emergency not fount'}, status=status.HTTP_404_NOT_FOUND)
 
+        serializer=EmergencyGetSerializer(instance,data=request.data,partial=True)
         if serializer.is_valid():
-            if request.data.get('assigned_to'):
-                serializer.save(status='in progress')  # Automatically set status
-            else:
-                serializer.save()  # In case only status is changed
-            return Response({'message': 'Doctor assigned successfully', 'data': serializer.data}, status=200)
-        return Response(serializer.errors, status=400)
+            if request.data.get("assigned_to"):
+                serializer.save(status='in progress')
+                updated=serializer.save()
+                if updated.status=="resolved":
+                    request.session.pop("user_data",None)
+
+            return Response(serializer.data)
+
+        return Response(data={'message':'Failed to modify info'},status=status.HTTP_400_BAD_REQUEST)
+
+

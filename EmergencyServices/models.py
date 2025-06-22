@@ -1,9 +1,8 @@
 from django.db import models
 
 HELP_CHOICES = [
-    ('me', 'Me'),
-    ('other', 'Other Person'),
-    ('family', 'Family Member'),
+    (True, 'Me'),
+    (False, 'Other Person'),
 ]
 
 STATUS_CHOICES=[
@@ -13,8 +12,11 @@ STATUS_CHOICES=[
 ]
 class EmergencyRequest(models.Model):
     type=models.CharField(max_length=25)
-    help_for = models.CharField(max_length=10, choices=HELP_CHOICES)
-    location = models.CharField(max_length=255)
+    help_for = models.BooleanField(choices=HELP_CHOICES, default=True)
+    location_info = models.CharField(max_length=255)
+    latitude=models.FloatField(default=0.0)
+    longitude=models.FloatField(default=0.0)
+    image=models.ImageField(upload_to='images/',null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     extra_info=models.TextField(blank=True,null=True)
     status=models.CharField(max_length=20,choices=STATUS_CHOICES,default='pending')
