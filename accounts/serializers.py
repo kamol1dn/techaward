@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import models
 from accounts.models import CustomUser, MedicalRecord, GENDER_CHOICES, BLOOD_TYPE_CHOICES
+
 
 class PersonalDataSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -14,15 +14,11 @@ class PersonalDataSerializer(serializers.Serializer):
     passport = serializers.CharField()
 
 
-
 class MedicalDataSerializer(serializers.Serializer):
     blood_type = serializers.ChoiceField(choices=BLOOD_TYPE_CHOICES)
     allergies = serializers.CharField()
     illness = serializers.CharField()
     additional_info = serializers.CharField(required=False, allow_blank=True)
-
-
-
 
 
 class CustomLoginSerializer(serializers.Serializer):
@@ -44,23 +40,17 @@ class CustomLoginSerializer(serializers.Serializer):
         if not user_obj.is_active:
             raise serializers.ValidationError("User account is disabled")
 
-        # Debug: Print credentials being used for authentication
-        print(f"Attempting auth with email: {user_obj.email}, password: {password}")
-
         user = authenticate(
             request=self.context.get('request'),
-            username=user_obj.email,  # Ensure this matches USERNAME_FIELD
+            username=user_obj.email,
             password=password
         )
 
         if not user:
-            # Verify password manually for debugging
-            if not user_obj.check_password(password):
-                print("Password check failed!")
-            raise serializers.ValidationError("Invalid password or authentication failure")
+            raise serializers.ValidationError("Invalid password")
 
-        # Generate JWT token
-        refresh = RefreshToken.for_user(user)
+        # Generate simple token (same format as registration)
+        token = f"user_token_{user.id}_{user.email}"
 
         # Build user_data
         user_data = {
@@ -82,14 +72,22 @@ class CustomLoginSerializer(serializers.Serializer):
                 "additional_info": medical.additional_info,
             })
         except MedicalRecord.DoesNotExist:
-            pass
+            # Set empty values if no medical record exists
+            user_data.update({
+                "blood_type": "",
+                "allergies": "",
+                "illness": "",
+                "additional_info": "",
+            })
 
         return {
             "success": True,
-            "token": str(refresh.access_token),
+            "token": token,
             "message": "Login successful",
             "user_data": user_data,
         }
+
+
 class RegisterSerializer(serializers.Serializer):
     personal = PersonalDataSerializer()
     medical = MedicalDataSerializer()
@@ -119,3 +117,81 @@ class RegisterSerializer(serializers.Serializer):
         )
 
         return user
+
+
+class FlatProfileUpdateSerializer(serializers.ModelSerializer):
+    # Personal fields
+    name = serializers.CharField(source='first_name', required=True)
+    surname = serializers.CharField(source='last_name', required=True)
+    passport = serializers.CharField(source='passport_series', required=True)
+    email = serializers.EmailField(read_only=True)  # Email should not be updated
+
+    # Medical fields
+    blood_type = serializers.ChoiceField(
+        source='medical_record.blood_type',
+        choices=BLOOD_TYPE_CHOICES,
+        required=False
+    )
+    allergies = serializers.CharField(
+        source='medical_record.allergies',
+        required=False,
+        allow_blank=True
+    )
+    illness = serializers.CharField(
+        source='medical_record.ongoing_illness',
+        required=False,
+        allow_blank=True
+    )
+    additional_info = serializers.CharField(
+        source='medical_record.additional_info',
+        required=False,
+        allow_blank=True
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            'name', 'surname', 'phone', 'age', 'gender', 'passport',
+            'blood_type', 'allergies', 'illness', 'additional_info'
+        ]
+        read_only_fields = ['email']
+
+    def validate_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Name is required")
+        return value
+
+    def validate_surname(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Surname is required")
+        return value
+
+    def validate_phone(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Phone is required")
+        return value
+
+    def validate_age(self, value):
+        if value < 1 or value > 120:
+            raise serializers.ValidationError("Invalid age (1-120)")
+        return value
+
+    def validate_passport(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Passport is required")
+        return value
+
+    def update(self, instance, validated_data):
+        # Extract medical data
+        medical_data = validated_data.pop('medical_record', {})
+
+        # Update user instance
+        instance = super().update(instance, validated_data)
+
+        # Update medical record
+        medical_record, created = MedicalRecord.objects.get_or_create(user=instance)
+        for attr, value in medical_data.items():
+            setattr(medical_record, attr, value)
+        medical_record.save()
+
+        return instance
