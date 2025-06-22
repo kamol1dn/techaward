@@ -18,7 +18,8 @@ class MyToken(TokenObtainPairSerializer,serializers.ModelSerializer):
         if user.role !=role:
             raise serializers.ValidationError('Invalid role for this user.')
 
-
-
         data=super().validate(attrs)
+        data['username'] = user.username
+        data['role'] = user.role
+        data['id'] = user.id
         return data
