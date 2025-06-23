@@ -20,7 +20,7 @@ class OTPRequestView(APIView):
         serializer = OTPRequestSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
-            code = str(random.randint(1000, 9999))
+            code = str(random.randint(100000, 999999))
 
             EmailOTP.objects.filter(email=email).delete()
             EmailOTP.objects.create(email=email, code=code)

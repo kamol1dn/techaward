@@ -41,6 +41,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20,blank=True, null=True)  # Remove blank=True, null=True
     age = models.PositiveIntegerField()
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     passport_series = models.CharField(max_length=20)

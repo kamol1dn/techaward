@@ -1,6 +1,11 @@
+# ==========================================
+# SERIALIZERS.PY
+# ==========================================
+
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.models import CustomUser, MedicalRecord, GENDER_CHOICES, BLOOD_TYPE_CHOICES
 
 
@@ -9,6 +14,7 @@ class PersonalDataSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     name = serializers.CharField()
     surname = serializers.CharField()
+    phone = serializers.CharField()
     age = serializers.IntegerField()
     gender = serializers.ChoiceField(choices=GENDER_CHOICES)
     passport = serializers.CharField()
@@ -49,11 +55,14 @@ class CustomLoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("Invalid password")
 
-        # Generate simple token (same format as registration)
-        token = f"user_token_{user.id}_{user.email}"
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
         # Build user_data
         user_data = {
+            "id": user.id,
             "name": user.first_name,
             "surname": user.last_name,
             "phone": getattr(user, "phone", ""),
@@ -82,7 +91,8 @@ class CustomLoginSerializer(serializers.Serializer):
 
         return {
             "success": True,
-            "token": token,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
             "message": "Login successful",
             "user_data": user_data,
         }
@@ -92,22 +102,38 @@ class RegisterSerializer(serializers.Serializer):
     personal = PersonalDataSerializer()
     medical = MedicalDataSerializer()
 
+    def validate(self, data):
+        # Check if email already exists
+        email = data['personal']['email']
+        if CustomUser.objects.filter(email=email).exists():
+            raise serializers.ValidationError({"personal": {"email": "User with this email already exists."}})
+
+        # Check if passport already exists
+        passport = data['personal']['passport']
+        if CustomUser.objects.filter(passport_series=passport).exists():
+            raise serializers.ValidationError({"personal": {"passport": "User with this passport already exists."}})
+
+        return data
+
     def create(self, validated_data):
         personal = validated_data['personal']
         medical = validated_data['medical']
 
         password = personal.pop('password')
 
+        # Create user
         user = CustomUser.objects.create_user(
             email=personal['email'],
             first_name=personal['name'],
             last_name=personal['surname'],
+            phone=personal['phone'],
             age=personal['age'],
             gender=personal['gender'],
             passport_series=personal['passport'],
             password=password
         )
 
+        # Create medical record
         MedicalRecord.objects.create(
             user=user,
             blood_type=medical['blood_type'],
@@ -116,7 +142,16 @@ class RegisterSerializer(serializers.Serializer):
             additional_info=medical.get('additional_info', '')
         )
 
-        return user
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        return {
+            "user": user,
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
 
 
 class FlatProfileUpdateSerializer(serializers.ModelSerializer):
@@ -124,7 +159,7 @@ class FlatProfileUpdateSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='first_name', required=True)
     surname = serializers.CharField(source='last_name', required=True)
     passport = serializers.CharField(source='passport_series', required=True)
-    email = serializers.EmailField(read_only=True)  # Email should not be updated
+    email = serializers.EmailField(read_only=True)
 
     # Medical fields
     blood_type = serializers.ChoiceField(
@@ -151,7 +186,7 @@ class FlatProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            'name', 'surname', 'phone', 'age', 'gender', 'passport',
+            'name', 'surname', 'phone', 'age', 'gender', 'passport', 'email',
             'blood_type', 'allergies', 'illness', 'additional_info'
         ]
         read_only_fields = ['email']
@@ -179,6 +214,11 @@ class FlatProfileUpdateSerializer(serializers.ModelSerializer):
     def validate_passport(self, value):
         if not value.strip():
             raise serializers.ValidationError("Passport is required")
+
+        # Check if passport already exists for another user
+        if CustomUser.objects.exclude(id=self.instance.id).filter(passport_series=value).exists():
+            raise serializers.ValidationError("User with this passport already exists.")
+
         return value
 
     def update(self, instance, validated_data):
@@ -186,9 +226,11 @@ class FlatProfileUpdateSerializer(serializers.ModelSerializer):
         medical_data = validated_data.pop('medical_record', {})
 
         # Update user instance
-        instance = super().update(instance, validated_data)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
 
-        # Update medical record
+        # Update or create medical record
         medical_record, created = MedicalRecord.objects.get_or_create(user=instance)
         for attr, value in medical_data.items():
             setattr(medical_record, attr, value)
