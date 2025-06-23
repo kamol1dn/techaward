@@ -434,7 +434,7 @@ class ApiService {
 
     try {
       final response = await _instance._makeRequest(
-        '/profile/',
+        '/accounts/profile/',
         method: 'PUT',
         body: profileData,
       );
@@ -596,87 +596,4 @@ class ApiService {
   static bool get isAuthenticated => _instance._isAuthenticated;
   static String? get accessToken => _instance._accessToken;
   static String? get refreshToken => _instance._refreshToken;
-}
-
-// Usage Examples - Now with static methods
-
-class ApiServiceUsage {
-  // Registration example
-  static Future<void> handleRegistration() async {
-    final personalData = PersonalData(
-      email: "user@example.com",
-      password: "securepassword123",
-      name: "John",
-      surname: "Doe",
-      phone: "+1234567890",
-      age: 25,
-      gender: "Male",
-      passport: "AB1234567",
-    );
-
-    final medicalData = MedicalData(
-      bloodType: "A+",
-      allergies: "None",
-      illness: "None",
-      additionalInfo: "Regular checkups",
-    );
-
-    final result = await ApiService.register(personalData, medicalData);
-
-    if (result['success'] == true) {
-      print('Registration successful: ${result['userData']}');
-      // Navigate to dashboard or home page
-    } else {
-      print('Registration failed: ${result['message']}');
-      print('Errors: ${result['errors']}');
-      // Show error messages to user
-    }
-  }
-
-  // Login example
-  static Future<void> handleLogin() async {
-    const identifier = "user@example.com"; // or passport number
-    const password = "securepassword123";
-
-    final result = await ApiService.login(identifier, password);
-
-    if (result['success'] == true) {
-      print('Login successful: ${result['userData']}');
-      // Navigate to dashboard
-    } else {
-      print('Login failed: ${result['message']}');
-      // Show error message to user
-    }
-  }
-
-  // Profile update example
-  static Future<void> handleProfileUpdate() async {
-    final profileData = {
-      'name': "John",
-      'surname': "Doe Updated",
-      'phone': "+9876543210",
-      'age': 26,
-      'gender': "Male",
-      'passport': "AB1234567",
-      'blood_type': "B+",
-      'allergies': "Peanuts",
-      'illness': "Hypertension",
-      'additional_info': "Monthly checkups required"
-    };
-
-    final result = await ApiService.updateUserData(profileData);
-
-    if (result['success'] == true) {
-      print('Profile updated successfully');
-    } else {
-      print('Profile update failed: ${result['message']}');
-    }
-  }
-
-  // Logout example
-  static Future<void> handleLogout() async {
-    await ApiService.logout();
-    print('User logged out');
-    // Navigate to login page
-  }
 }

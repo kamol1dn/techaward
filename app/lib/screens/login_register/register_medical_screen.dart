@@ -388,18 +388,23 @@ class _RegisterMedicalScreenState extends State<RegisterMedicalScreen> {
 
     try {
       final result = await ApiService.register(widget.personalData, medicalData);
-
-      if (result['success']) {
-        await StorageService.saveUserToken(result['token']);
+      if (result['success']==true) {
+       // await StorageService.saveUserToken(result['token']);
         await StorageService.saveUserData(widget.personalData, medicalData);
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => _LoadingScreen()),
-              (route) => false,
-        );
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => _LoadingScreen()),
+                (route) => false,
+          );
+        }
+      } else {
+        print('[DEBUG] Registration failed: ${result['message']}');
+        _showError(result['message'] ?? 'Registration failed');
       }
     } catch (e) {
+      print('[DEBUG] Registration exception: $e');
       _showError(LanguageController.get('registration_failed') ?? 'Registration failed');
     }
 

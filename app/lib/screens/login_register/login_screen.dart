@@ -489,32 +489,36 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
     try {
       final result = await ApiService.login(_loginController.text, _passwordController.text);
-      print('Login response: $result');
 
-      String? token = result['access'] ?? result['token'];
 
-      if (token != null && result['success'] == true) {
-        await StorageService.saveUserToken(token);
+      if (result['success'] == true) {
+        print('[DEBUG] Login successful!');
+        final isAuthenticated = ApiService.isAuthenticated;
+        print('[DEBUG] User authenticated: $isAuthenticated');
 
-        if (result.containsKey('user_data')) {
-          await StorageService.saveLoginUserData(result['user_data']);
+        if (result.containsKey('userData')) {
+          await StorageService.saveLoginUserData(result['userData']);
+          print('[DEBUG] User data saved');
         }
 
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => MainScreen(),
-            transitionDuration: Duration(milliseconds: 400),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        );
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => MainScreen(),
+              transitionDuration: Duration(milliseconds: 400),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          );
+        }
       } else {
+        print('[DEBUG] Login failed: ${result['message']}');
         _showError(result['message'] ?? LanguageController.get('login_fail'));
       }
     } catch (e) {
-      print('Login error: $e');
+      print('[DEBUG] Login exception: $e');
       _showError(LanguageController.get('login_fail'));
     }
 
