@@ -39,7 +39,7 @@ class DummyData {
 
   static Map<String, dynamic> simulateVerifyOtp(String phone, String otp) {
     // Accept any 4-digit OTP for testing
-    if (otp == '1234') {
+    if (otp == '123456') {
       return {
         'success': true,
         'registration_token': 'reg_token_1234'

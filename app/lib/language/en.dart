@@ -82,6 +82,7 @@ final Map<String, String> en = {
   'forgot_password' : 'Forgot Password?',
 
 
+
   // register screen
   'create_account': "Create account",
   'register_subtitle': 'Step 1 of 2 - Personal Information',
@@ -120,6 +121,7 @@ final Map<String, String> en = {
   'detailed_guide': 'Detailed Guide',
   'emergency_reminder': 'Remember: In real emergencies, call emergency services immediately!',
   'help_quick_access': 'Tutorials & Guides',
+  'learning_hub':'Learning hub',
 
 
 
@@ -162,6 +164,7 @@ final Map<String, String> en = {
   'male': 'Male',
   'female': 'Female',
   'email': "Email",
+  'profile_edit_button':'Edit',
 
   //family screen
   // Add these keys to your language controller/files:

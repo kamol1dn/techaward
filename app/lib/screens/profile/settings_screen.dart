@@ -117,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 SizedBox(width: 4),
                                 Text(
-                                  'Edit',
+                                  LanguageController.get('profile_edit_button'),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,

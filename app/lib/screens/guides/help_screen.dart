@@ -54,7 +54,7 @@ class HelpScreen extends StatelessWidget {
                               ),
                               SizedBox(width: 4),
                               Text(
-                                'Learning Hub',
+                                LanguageController.get('learning_hub'),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
