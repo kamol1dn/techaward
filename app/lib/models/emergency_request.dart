@@ -7,6 +7,8 @@ class EmergencyRequest {
   final bool isForMe;
   final String details;
   final String location;
+  final double? latitude;
+  final double? longitude;
   final String? imagePath;
   final Map<String, dynamic>? userData;
 
@@ -15,6 +17,8 @@ class EmergencyRequest {
     required this.isForMe,
     required this.details,
     required this.location,
+    this.latitude,
+    this.longitude,
     this.imagePath,
     this.userData,
   });
@@ -24,6 +28,8 @@ class EmergencyRequest {
     'is_for_me': isForMe,
     'details': details,
     'location': location,
+    'latitude': latitude,
+    'longitude': longitude,
     'image_path': imagePath,
     'user_data': userData,
     'timestamp': DateTime.now().toIso8601String(),

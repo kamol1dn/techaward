@@ -4,25 +4,36 @@ import '../../models/user_model.dart';
 import '../../models/emergency_request.dart';
 import './url.dart';
 import '../../services/storage_service.dart';
-
 import '../../data/dummy_data.dart';
 
 class ApiService {
   static const String baseUrl = Urls.apiBaseUrl;
-  static bool useTestServer = true;// Toggle for test server simulation
+  static bool useTestServer = true;
   static bool online = false;
-  ApiService()
-  {
 
-  }
-  static Future<void> init() async {
+  String? _accessToken;
+  String? _refreshToken;
+
+  // Singleton pattern
+  static final ApiService _instance = ApiService._internal();
+  factory ApiService() => _instance;
+  ApiService._internal();
+
+  // Static instance for easy access
+  static ApiService get instance => _instance;
+
+  // Initialize the service
+  Future<void> _init() async {
     print('[APP] 🚀 ApiService.init() - Starting...');
     print('[APP] 🚀 Base URL: $baseUrl');
 
-    online = await isServerOnline();
+    // Load tokens from storage
+    await _loadTokens();
+
+    online = await _isServerOnline();
     print('[APP] 🚀 Server online status: $online');
 
-    if(online) {
+    if (online) {
       print('[APP] 🚀 Server is online - using real API');
     } else {
       print('[APP] 🚀 Server is offline - using test server');
@@ -33,12 +44,45 @@ class ApiService {
     print('[APP] 🚀 ApiService.init() - Completed');
   }
 
-  static Future<bool> isServerOnline() async {
+  // Token management
+  Future<void> _loadTokens() async {
+    _accessToken = await StorageService.getUserToken();
+    _refreshToken = await StorageService.getRefreshToken();
+    print('[APP] 🔑 Tokens loaded from storage');
+  }
+
+  Future<void> _setTokens(String accessToken, String refreshToken) async {
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+    await StorageService.saveUserToken(accessToken);
+    await StorageService.saveRefreshToken(refreshToken);
+    print('[APP] 🔑 Tokens saved to storage');
+  }
+
+ // String? get accessToken => _accessToken;
+ // String? get refreshToken => _refreshToken;
+
+  Future<void> _clearTokens() async {
+    _accessToken = null;
+    _refreshToken = null;
+    await StorageService.clearUserToken();
+    await StorageService.clearRefreshToken();
+    print('[APP] 🔑 Tokens cleared from storage');
+  }
+
+  bool get _isAuthenticated => _accessToken != null;
+
+  // Server connectivity check
+  Future<bool> _isServerOnline() async {
     print('[APP] 🌐 ApiService.isServerOnline() - Starting...');
     print('[APP] 🌐 Checking server: $baseUrl/services/hello/');
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/services/hello/'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/services/hello/'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
       print('[APP] 🌐 Server response status: ${response.statusCode}');
       print('[APP] 🌐 Server response body: ${response.body}');
 
@@ -54,56 +98,212 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> login(String login, String password) async {
+  // Make authenticated requests with automatic token refresh
+  Future<http.Response?> _makeRequest(
+      String endpoint, {
+        String method = 'GET',
+        Map<String, dynamic>? body,
+        Map<String, String>? additionalHeaders,
+      }) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      ...?additionalHeaders,
+    };
+
+    // Add Authorization header if we have a token
+    if (_accessToken != null) {
+      headers['Authorization'] = 'Bearer $_accessToken';
+    }
+
+    final uri = Uri.parse('$baseUrl$endpoint');
+
+    try {
+      http.Response response;
+
+      switch (method.toLowerCase()) {
+        case 'post':
+          response = await http.post(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          );
+          break;
+        case 'put':
+          response = await http.put(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          );
+          break;
+        case 'delete':
+          response = await http.delete(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          );
+          break;
+        default:
+          response = await http.get(uri, headers: headers);
+      }
+
+      // If token expired, try to refresh
+      if (response.statusCode == 401 && _refreshToken != null) {
+        print('[APP] 🔄 Token expired, attempting refresh...');
+        final refreshed = await _refreshAccessToken();
+
+        if (refreshed) {
+          // Retry the original request with new token
+          headers['Authorization'] = 'Bearer $_accessToken';
+
+          switch (method.toLowerCase()) {
+            case 'post':
+              response = await http.post(
+                uri,
+                headers: headers,
+                body: body != null ? jsonEncode(body) : null,
+              );
+              break;
+            case 'put':
+              response = await http.put(
+                uri,
+                headers: headers,
+                body: body != null ? jsonEncode(body) : null,
+              );
+              break;
+            case 'delete':
+              response = await http.delete(
+                uri,
+                headers: headers,
+                body: body != null ? jsonEncode(body) : null,
+              );
+              break;
+            default:
+              response = await http.get(uri, headers: headers);
+          }
+        } else {
+          // Refresh failed, clear tokens
+          await _clearTokens();
+          print('[APP] 🔄 Token refresh failed, user needs to login again');
+          return null;
+        }
+      }
+
+      return response;
+    } catch (error) {
+      print('[APP] ❌ Request failed: $error');
+      rethrow;
+    }
+  }
+
+  // Refresh access token
+  Future<bool> _refreshAccessToken() async {
+    if (_refreshToken == null) return false;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/accounts/token/refresh/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refresh': _refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['access_token'] != null) {
+          _accessToken = data['access_token'];
+          await StorageService.saveUserToken(_accessToken!);
+          print('[APP] 🔄 Token refreshed successfully');
+          return true;
+        }
+      }
+      print('[APP] 🔄 Token refresh failed');
+      return false;
+    } catch (error) {
+      print('[APP] 🔄 Token refresh error: $error');
+      return false;
+    }
+  }
+
+  // STATIC METHODS - These can be called directly from screens
+
+  // Authentication methods
+  static Future<Map<String, dynamic>> login(String identifier, String password) async {
     print('[APP] 🔐 ApiService.login() - Starting...');
-    print('[APP] 🔐 Login: $login');
+    print('[APP] 🔐 Identifier: $identifier');
     print('[APP] 🔐 Password: [HIDDEN]');
 
-    await init();
+    await _instance._init();
     print('[APP] 🔐 API service initialized');
 
     if (useTestServer) {
       print('[APP] 🔐 Using test server for login');
-      await Future.delayed(Duration(seconds: 1)); // Simulate network delay
+      await Future.delayed(Duration(seconds: 1));
       print('[APP] 🔐 Network delay simulation completed');
 
-      final result = DummyData.simulateLogin(login, password);
+      final result = DummyData.simulateLogin(identifier, password);
+
+      if (result['success'] == true) {
+        await _instance._setTokens(
+          result['access_token'] ?? '',
+          result['refresh_token'] ?? '',
+        );
+      }
+
       print('[APP] 🔐 Test server response: $result');
       print('[APP] 🔐 ApiService.login() - Completed (test server)');
       return result;
     }
 
-    print('[APP] 🔐 Making HTTP request to: $baseUrl/accounts/login/');
-    final requestBody = {'identifier': login, 'password': password};
-    print('[APP] 🔐 Request body: $requestBody');
+    try {
+      final response = await _instance._makeRequest(
+        '/accounts/login/',
+        method: 'POST',
+        body: {
+          'identifier': identifier,
+          'password': password,
+        },
+      );
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/accounts/login/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
+      if (response == null) {
+        return {
+          'success': false,
+          'message': 'Authentication required',
+        };
+      }
 
-    print('[APP] 🔐 Response status: ${response.statusCode}');
-    print('[APP] 🔐 Response body: ${response.body}');
+      final data = jsonDecode(response.body);
 
-    final result = jsonDecode(response.body);
-    print('[APP] 🔐 Parsed response: $result');
-    print('[APP] 🔐 ApiService.login() - Completed (real server)');
-    return result;
+      if (data['success'] == true) {
+        await _instance._setTokens(
+          data['access_token'] ?? '',
+          data['refresh_token'] ?? '',
+        );
+        return {
+          'success': true,
+          'userData': data['user_data'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'],
+          'errors': data['errors'],
+        };
+      }
+    } catch (error) {
+      print('[APP] 🔐 Login failed: $error');
+      return {
+        'success': false,
+        'message': 'Network error during login',
+      };
+    }
   }
 
-
-  static Future<Map<String, dynamic>> completeRegistration(
-      PersonalData personal,
-      MedicalData medical
-      )
-
-  async {
-    print('[APP] 📋 ApiService.completeRegistration() - Starting...');
+  static Future<Map<String, dynamic>> register(PersonalData personal, MedicalData medical) async {
+    print('[APP] 📋 ApiService.register() - Starting...');
     print('[APP] 📋 Personal data: ${personal.toJson()}');
     print('[APP] 📋 Medical data: ${medical.toJson()}');
-    await init();
 
+    await _instance._init();
     print('[APP] 📋 API service initialized');
 
     if (useTestServer) {
@@ -112,34 +312,159 @@ class ApiService {
       print('[APP] 📋 Network delay simulation completed');
 
       final result = DummyData.simulateRegistration(personal, medical);
+
+      if (result['success'] == true) {
+        await _instance._setTokens(
+          result['access_token'] ?? '',
+          result['refresh_token'] ?? '',
+        );
+      }
+
       print('[APP] 📋 Test server response: $result');
-      print('[APP] 📋 ApiService.completeRegistration() - Completed (test server)');
+      print('[APP] 📋 ApiService.register() - Completed (test server)');
       return result;
     }
 
-    print('[APP] 📋 Making HTTP request to: $baseUrl/accounts/register/');
-    final requestBody = {
-      'personal': personal.toJson(),
-      'medical': medical.toJson(),
-    };
-    print('[APP] 📋 Request body: $requestBody');
+    try {
+      final response = await _instance._makeRequest(
+        '/accounts/register/',
+        method: 'POST',
+        body: {
+          'personal': personal.toJson(),
+          'medical': medical.toJson(),
+        },
+      );
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/accounts/register/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
+      if (response == null) {
+        return {
+          'success': false,
+          'message': 'Network error during registration',
+        };
+      }
 
-    print('[APP] 📋 Response status: ${response.statusCode}');
-    print('[APP] 📋 Response body: ${response.body}');
+      final data = jsonDecode(response.body);
 
-    final result = jsonDecode(response.body);
-    print('[APP] 📋 Parsed response: $result');
-    print('[APP] 📋 ApiService.completeRegistration() - Completed (real server)');
-    return result;
+      if (data['success'] == true) {
+        await _instance._setTokens(
+          data['access_token'] ?? '',
+          data['refresh_token'] ?? '',
+        );
+        return {
+          'success': true,
+          'userData': data['user_data'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'],
+          'errors': data['errors'],
+        };
+      }
+    } catch (error) {
+      print('[APP] 📋 Registration failed: $error');
+      return {
+        'success': false,
+        'message': 'Network error during registration',
+      };
+    }
   }
 
+  static Future<void> logout() async {
+    print('[APP] 🚪 ApiService.logout() - Starting...');
 
+    try {
+      if (_instance._refreshToken != null) {
+        await _instance._makeRequest(
+          '$baseUrl/accounts/logout/',
+          method: 'POST',
+          body: {'refresh_token': _instance._refreshToken},
+        );
+      }
+    } catch (error) {
+      print('[APP] 🚪 Logout request failed: $error');
+    } finally {
+      await _instance._clearTokens();
+      print('[APP] 🚪 ApiService.logout() - Completed');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getProfile() async {
+    print('[APP] 👤 ApiService.getProfile() - Starting...');
+
+    try {
+      final response = await _instance._makeRequest('$baseUrl/accounts/profile/', method: 'GET');
+
+      if (response != null && response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('[APP] 👤 Profile fetched successfully');
+        return data;
+      }
+
+      return {
+        'success': false,
+        'message': 'Failed to fetch profile'
+      };
+    } catch (error) {
+      print('[APP] 👤 Get profile failed: $error');
+      return {
+        'success': false,
+        'message': 'Network error'
+      };
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateUserData(Map<String, dynamic> profileData) async {
+    print('[APP] ✏️ ApiService.updateProfile() - Starting...');
+    print('[APP] ✏️ Profile data: $profileData');
+
+    await _instance._init();
+    print('[APP] ✏️ API service initialized');
+
+    if (useTestServer) {
+      print('[APP] ✏️ Using test server for profile update');
+      await Future.delayed(Duration(seconds: 2));
+      print('[APP] ✏️ Network delay simulation completed');
+
+      final result = DummyData.simulateUpdateUserData(profileData);
+      print('[APP] ✏️ Test server response: $result');
+      print('[APP] ✏️ ApiService.updateProfile() - Completed (test server)');
+      return result;
+    }
+
+    try {
+      final response = await _instance._makeRequest(
+        '/profile/',
+        method: 'PUT',
+        body: profileData,
+      );
+
+      if (response == null) {
+        return {
+          'success': false,
+          'message': 'Authentication required'
+        };
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('[APP] ✏️ Profile updated successfully');
+        return data;
+      } else {
+        final errorData = jsonDecode(response.body);
+        print('[APP] ✏️ Profile update failed: ${response.statusCode}');
+        return errorData;
+      }
+    } catch (error) {
+      print('[APP] ✏️ Update profile failed: $error');
+      return {
+        'success': false,
+        'message': 'Network error'
+      };
+    }
+  }
+
+  // Emergency request
   static Future<Map<String, dynamic>> sendEmergencyRequest(EmergencyRequest request) async {
     print('[APP] 🚨 ApiService.sendEmergencyRequest() - Starting...');
     print('[APP] 🚨 Emergency request: ${request.toJson()}');
@@ -155,90 +480,36 @@ class ApiService {
       return result;
     }
 
-    print('[APP] 🚨 Making HTTP request to: $baseUrl/emergency/request');
-    final requestBody = request.toJson();
-    print('[APP] 🚨 Request body: $requestBody');
-
-    final response = await http.post(
-      Uri.parse('$baseUrl/emergency/request'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
-
-    print('[APP] 🚨 Response status: ${response.statusCode}');
-    print('[APP] 🚨 Response body: ${response.body}');
-
-    final result = jsonDecode(response.body);
-    print('[APP] 🚨 Parsed response: $result');
-    print('[APP] 🚨 ApiService.sendEmergencyRequest() - Completed (real server)');
-    return result;
-  }
-
-  static Future<Map<String, dynamic>> updateUserData(Map<String, dynamic> userData) async {
-    print('[APP] ✏️ ApiService.updateUserData() - Starting...');
-    print('[APP] ✏️ User data to update: $userData');
-
-    await init();
-    print('[APP] ✏️ API service initialized');
-
-    if (useTestServer) {
-      print('[APP] ✏️ Using test server for user data update');
-      await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-      print('[APP] ✏️ Network delay simulation completed');
-
-      final result = DummyData.simulateUpdateUserData(userData);
-      print('[APP] ✏️ Test server response: $result');
-      print('[APP] ✏️ ApiService.updateUserData() - Completed (test server)');
-      return result;
-    }
-
     try {
-      print('[APP] ✏️ Making HTTP request to: $baseUrl/accounts/profile/update/');
-      print('[APP] ✏️ Request body: $userData');
-      //final token = await _getToken(); // Get stored JWT token
-      final response = await http.put(
-        Uri.parse('$baseUrl/accounts/profile/update/'),
-        headers: {
-          'Content-Type': 'application/json',
-          //'Authorization': 'Bearer $token',
-          // Add authorization header if needed
-          'Authorization': 'Bearer ${await StorageService.getUserToken()}',
-        },
-        body: jsonEncode(userData),
+      final response = await _instance._makeRequest(
+        '/emergency/request',
+        method: 'POST',
+        body: request.toJson(),
       );
 
-      print('[APP] ✏️ Response status: ${response.statusCode}');
-      print('[APP] ✏️ Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        print('[APP] ✏️ Parsed response: $result');
-        print('[APP] ✏️ ApiService.updateUserData() - Completed successfully (real server)');
-        return result;
-      } else {
-        final errorResult = {
+      if (response == null) {
+        return {
           'success': false,
-          'message': 'Server error: ${response.statusCode}'
+          'message': 'Authentication required'
         };
-        print('[APP] ✏️ Server error response: $errorResult');
-        print('[APP] ✏️ ApiService.updateUserData() - Completed with server error');
-        return errorResult;
       }
-    } catch (e) {
-      final errorResult = {
+
+      final data = jsonDecode(response.body);
+      print('[APP] 🚨 Emergency request sent successfully');
+      return data;
+    } catch (error) {
+      print('[APP] 🚨 Emergency request failed: $error');
+      return {
         'success': false,
-        'message': 'Network error: $e'
+        'message': 'Network error'
       };
-      print('[APP] ✏️ Network error: $e');
-      print('[APP] ✏️ Error response: $errorResult');
-      print('[APP] ✏️ ApiService.updateUserData() - Completed with network error');
-      return errorResult;
     }
   }
 
+  // OTP methods
   static Future<Map<String, dynamic>> sendOtpToEmail(String email) async {
-    await init();
-    print('[APP] 📱 ApiService.sendOtp() - Starting...');
+    await _instance._init();
+    print('[APP] 📱 ApiService.sendOtpToEmail() - Starting...');
     print('[APP] 📱 Email: $email');
 
     if (useTestServer) {
@@ -248,32 +519,39 @@ class ApiService {
 
       final result = DummyData.simulateSendOtp(email);
       print('[APP] 📱 Test server response: $result');
-      print('[APP] 📱 ApiService.sendOtp() - Completed (test server)');
+      print('[APP] 📱 ApiService.sendOtpToEmail() - Completed (test server)');
       return result;
     }
 
-    print('[APP] 📱 Making HTTP request to: $baseUrl/services/auth/request-otp/');
-    final requestBody = {'email': email};
-    print('[APP] 📱 Request body: $requestBody');
+    try {
+      final response = await _instance._makeRequest(
+        '/services/auth/request-otp/',
+        method: 'POST',
+        body: {'email': email},
+      );
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/services/auth/request-otp/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
+      if (response == null) {
+        return {
+          'success': false,
+          'message': 'Network error'
+        };
+      }
 
-    print('[APP] 📱 Response status: ${response.statusCode}');
-    print('[APP] 📱 Response body: ${response.body}');
-
-    final result = jsonDecode(response.body);
-    print('[APP] 📱 Parsed response: $result');
-    print('[APP] 📱 ApiService.sendOtp() - Completed (real server)');
-    return result;
+      final data = jsonDecode(response.body);
+      print('[APP] 📱 OTP sent successfully');
+      return data;
+    } catch (error) {
+      print('[APP] 📱 Send OTP failed: $error');
+      return {
+        'success': false,
+        'message': 'Network error'
+      };
+    }
   }
 
   static Future<Map<String, dynamic>> verifyEmailOtp(String email, String otp) async {
-    await init();
-    print('[APP] ✅ ApiService.verifyOtp() - Starting...');
+    await _instance._init();
+    print('[APP] ✅ ApiService.verifyEmailOtp() - Starting...');
     print('[APP] ✅ Email: $email');
     print('[APP] ✅ OTP: $otp');
 
@@ -284,29 +562,121 @@ class ApiService {
 
       final result = DummyData.simulateVerifyOtp(email, otp);
       print('[APP] ✅ Test server response: $result');
-      print('[APP] ✅ ApiService.verifyOtp() - Completed (test server)');
+      print('[APP] ✅ ApiService.verifyEmailOtp() - Completed (test server)');
       return result;
     }
 
-    print('[APP] ✅ Making HTTP request to: $baseUrl/services/auth/verify-otp/');
-    final requestBody = {'email': email, 'code': otp};
-    print('[APP] ✅ Request body: $requestBody');
+    try {
+      final response = await _instance._makeRequest(
+        '/services/auth/verify-otp/',
+        method: 'POST',
+        body: {'email': email, 'code': otp},
+      );
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/services/auth/verify-otp/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
+      if (response == null) {
+        return {
+          'success': false,
+          'message': 'Network error'
+        };
+      }
 
-    print('[APP] ✅ Response status: ${response.statusCode}');
-    print('[APP] ✅ Response body: ${response.body}');
-
-    final result = jsonDecode(response.body);
-    print('[APP] ✅ Parsed response: $result');
-    print('[APP] ✅ ApiService.verifyOtp() - Completed (real server)');
-    return result;
+      final data = jsonDecode(response.body);
+      print('[APP] ✅ OTP verified successfully');
+      return data;
+    } catch (error) {
+      print('[APP] ✅ Verify OTP failed: $error');
+      return {
+        'success': false,
+        'message': 'Network error'
+      };
+    }
   }
 
+  // Static getters for accessing singleton properties
+  static bool get isAuthenticated => _instance._isAuthenticated;
+  static String? get accessToken => _instance._accessToken;
+  static String? get refreshToken => _instance._refreshToken;
+}
 
+// Usage Examples - Now with static methods
 
+class ApiServiceUsage {
+  // Registration example
+  static Future<void> handleRegistration() async {
+    final personalData = PersonalData(
+      email: "user@example.com",
+      password: "securepassword123",
+      name: "John",
+      surname: "Doe",
+      phone: "+1234567890",
+      age: 25,
+      gender: "Male",
+      passport: "AB1234567",
+    );
+
+    final medicalData = MedicalData(
+      bloodType: "A+",
+      allergies: "None",
+      illness: "None",
+      additionalInfo: "Regular checkups",
+    );
+
+    final result = await ApiService.register(personalData, medicalData);
+
+    if (result['success'] == true) {
+      print('Registration successful: ${result['userData']}');
+      // Navigate to dashboard or home page
+    } else {
+      print('Registration failed: ${result['message']}');
+      print('Errors: ${result['errors']}');
+      // Show error messages to user
+    }
+  }
+
+  // Login example
+  static Future<void> handleLogin() async {
+    const identifier = "user@example.com"; // or passport number
+    const password = "securepassword123";
+
+    final result = await ApiService.login(identifier, password);
+
+    if (result['success'] == true) {
+      print('Login successful: ${result['userData']}');
+      // Navigate to dashboard
+    } else {
+      print('Login failed: ${result['message']}');
+      // Show error message to user
+    }
+  }
+
+  // Profile update example
+  static Future<void> handleProfileUpdate() async {
+    final profileData = {
+      'name': "John",
+      'surname': "Doe Updated",
+      'phone': "+9876543210",
+      'age': 26,
+      'gender': "Male",
+      'passport': "AB1234567",
+      'blood_type': "B+",
+      'allergies': "Peanuts",
+      'illness': "Hypertension",
+      'additional_info': "Monthly checkups required"
+    };
+
+    final result = await ApiService.updateUserData(profileData);
+
+    if (result['success'] == true) {
+      print('Profile updated successfully');
+    } else {
+      print('Profile update failed: ${result['message']}');
+    }
+  }
+
+  // Logout example
+  static Future<void> handleLogout() async {
+    await ApiService.logout();
+    print('User logged out');
+    // Navigate to login page
+  }
 }

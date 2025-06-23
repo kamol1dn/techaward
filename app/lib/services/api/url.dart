@@ -1,3 +1,3 @@
 class Urls{
-  static const String apiBaseUrl = 'https://266b-90-156-196-100.ngrok-free.app/api/v1';
+  static const String apiBaseUrl = 'http://127.0.0.1:8000/api/v1';
 }

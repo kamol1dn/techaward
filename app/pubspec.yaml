@@ -36,7 +36,8 @@ dependencies:
   url_launcher: ^6.1.7
   flutter_localizations:
     sdk: flutter
-
+  geolocator: ^9.0.2
+  permission_handler: ^11.3.0
   cached_network_image: ^3.3.0
   restart_app: any
   intl: ^0.20.2

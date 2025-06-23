@@ -8,6 +8,7 @@ import 'services/storage_service.dart';
 
 
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LanguageController.init();
@@ -32,10 +33,12 @@ class EmergencyApp extends StatelessWidget {
       ),
       home: FutureBuilder<bool>(
         future: _checkFirstTime(),
+
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
           }
+
           return snapshot.data == true ? SplashScreen() : MainScreen();
         },
       ),
@@ -46,4 +49,6 @@ class EmergencyApp extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     return !prefs.containsKey('user_token');
   }
+
+
 }

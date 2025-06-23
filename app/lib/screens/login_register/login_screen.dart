@@ -228,7 +228,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                           // Add forgot password functionality
                                         },
                                         child: Text(
-                                          'Forgot Password?',
+                                          LanguageController.get('forgot_password'),
+                                          //'Forgot Password?',
                                           style: TextStyle(
                                             color: Color(0xFF1976D2),
                                             fontWeight: FontWeight.w500,

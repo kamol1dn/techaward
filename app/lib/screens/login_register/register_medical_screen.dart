@@ -387,7 +387,7 @@ class _RegisterMedicalScreenState extends State<RegisterMedicalScreen> {
     );
 
     try {
-      final result = await ApiService.completeRegistration(widget.personalData, medicalData);
+      final result = await ApiService.register(widget.personalData, medicalData);
 
       if (result['success']) {
         await StorageService.saveUserToken(result['token']);

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/emergency_request.dart';
 import '../../models/family_models.dart';
-
+import 'package:geolocator/geolocator.dart';
 import '../../services/api/api_service.dart';
 import '../../services/api/family_api_service.dart';
 import '../../services/storage_service.dart';
@@ -29,6 +29,10 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
   final _locationController = TextEditingController();
   String? _imagePath;
   bool _isLoading = false;
+  double? _latitude;
+  double? _longitude;
+  String? _locationError;
+  bool _isGettingLocation = false;
 
   // Family members data
   List<FamilyMember> _familyMembers = [];
@@ -39,6 +43,7 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
   void initState() {
     super.initState();
     _loadFamilyMembers();
+    _getCurrentLocation(); // Add this line
   }
 
   Future<void> _loadFamilyMembers() async {
@@ -74,6 +79,57 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
     } catch (e) {
       print('Error loading family members: $e');
       setState(() => _loadingFamilyMembers = false);
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isGettingLocation = true);
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationError = 'Location services are disabled';
+          _isGettingLocation = false;
+        });
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _locationError = 'Location permissions are denied';
+            _isGettingLocation = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _locationError = 'Location permissions are permanently denied';
+          _isGettingLocation = false;
+        });
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+        _locationError = null;
+        _isGettingLocation = false;
+      });
+    } catch (e) {
+      setState(() {
+        _locationError = 'Failed to get location: $e';
+        _isGettingLocation = false;
+      });
     }
   }
 
@@ -240,16 +296,66 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
               ],
 
               // Location field
-              TextFormField(
-                controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: LanguageController.get('location'),
-                  hintText: 'Current location will be used if empty',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on),
+              // Location field
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Text(
+                          LanguageController.get('location') ?? 'Location',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        Spacer(),
+                        if (_isGettingLocation)
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          IconButton(
+                            icon: Icon(Icons.refresh, size: 20),
+                            onPressed: _getCurrentLocation,
+                            tooltip: 'Refresh location',
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    if (_locationError != null)
+                      Text(
+                        _locationError!,
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      )
+                    else if (_latitude != null && _longitude != null)
+                      Text(
+                        'Lat: ${_latitude!.toStringAsFixed(6)}, Lng: ${_longitude!.toStringAsFixed(6)}',
+                        style: TextStyle(color: Colors.green, fontSize: 12),
+                      )
+                    else
+                      Text(
+                        'Getting current location...',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    SizedBox(height: 8),
+                    TextFormField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        hintText: 'Additional location details (optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
               SizedBox(height: 32),
 
               // Submit buttons
@@ -308,9 +414,9 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
 
   bool _canSubmitRequest() {
     if (_requestType == HelpRequestType.familyMember) {
-      return _selectedFamilyMember != null;
+      return _selectedFamilyMember != null && _latitude != null && _longitude != null;
     }
-    return true;
+    return _latitude != null && _longitude != null;
   }
 
   String _getServiceName() {
@@ -351,7 +457,9 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
         'type': widget.type.toString(),
         'request_type': _requestType.toString(),
         'details': _detailsController.text,
-        'location': _locationController.text.isEmpty ? 'Current Location' : _locationController.text,
+        'location': _locationController.text,
+        'latitude': _latitude,
+        'longitude': _longitude,
         'image_path': _imagePath,
         'timestamp': DateTime.now().toIso8601String(),
       };
@@ -377,6 +485,8 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
         isForMe: _requestType == HelpRequestType.me,
         details: _detailsController.text,
         location: _locationController.text.isEmpty ? 'Current Location' : _locationController.text,
+        latitude: _latitude,  // Add this
+        longitude: _longitude, // Add this
         imagePath: _imagePath,
         userData: _requestType == HelpRequestType.me ? userData : null,
       );
@@ -403,7 +513,9 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
         'type': _getServiceName(),
         'request_type': _getRequestTypeString(),
         'details': _detailsController.text,
-        'location': _locationController.text.isEmpty ? 'Current Location' : _locationController.text,
+        'location': _locationController.text,
+        'latitude': _latitude,
+        'longitude': _longitude,
         'timestamp': DateTime.now().toIso8601String(),
       };
 
