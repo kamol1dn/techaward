@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from django.conf import settings
 
 class HelloWorldView(APIView):
     def get(self, request):
@@ -26,12 +26,12 @@ class OTPRequestView(APIView):
             EmailOTP.objects.create(email=email, code=code)
 
             send_mail(
-                'Your OTP Code',
-                f'Your OTP code is: {code}',
-                'your_email@gmail.com',
-                [email],
-                fail_silently=False,
-            )
+                 'Your OTP Code',
+                 f'Your OTP code is: {code}',
+                 settings.DEFAULT_FROM_EMAIL,  # ✅ dynamically uses support@84u.uz
+                 [email],
+                 fail_silently=False,
+                    )
 
             return Response({'success': True,
                 'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
