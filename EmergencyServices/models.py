@@ -13,7 +13,7 @@ STATUS_CHOICES=[
 class EmergencyRequest(models.Model):
     type=models.CharField(max_length=25)
     help_for = models.BooleanField(choices=HELP_CHOICES, default=True)
-    location_info = models.CharField(max_length=255)
+    location_info = models.CharField(max_length=255,blank=True,null=True)
     latitude=models.FloatField(default=0.0)
     longitude=models.FloatField(default=0.0)
     image=models.ImageField(upload_to='images/',null=True)
