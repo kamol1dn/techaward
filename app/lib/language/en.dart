@@ -167,7 +167,7 @@ final Map<String, String> en = {
   'profile_edit_button':'Edit',
 
   //family screen
-  // Add these keys to your language controller/files:
+
   'family_hub': 'Family circle',
   'navbar_family': 'Family',
   'family_title': 'Family & Emergency',
@@ -182,6 +182,8 @@ final Map<String, String> en = {
   'family_medical_information': 'Store important medical information',
   'family_quick_access': 'Family Emergency Management',
   'family_description': 'Manage emergency contacts, sharing, and family safety features',
-
+  ' coming_soon':'Coming soon',
+  'available_soon': ' feature will be available soon!',  // feature name comes first in all language
+  'location_sharing_feature': 'Location Sharing',
 
 };

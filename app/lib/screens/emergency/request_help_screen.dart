@@ -7,9 +7,13 @@ import '../../models/family_models.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../services/api/api_service.dart';
 import '../../services/api/family_api_service.dart';
+import '../../services/api/url.dart';
 import '../../services/storage_service.dart';
 import '../../services/family_storage_service.dart';
 import 'home_screen.dart';
+import 'package:http/http.dart' as http;
+
+
 
 enum HelpRequestType { me, other, familyMember }
 
@@ -24,6 +28,9 @@ class RequestHelpScreen extends StatefulWidget {
 }
 
 class _RequestHelpScreenState extends State<RequestHelpScreen> {
+  static const String YANDEX_API_KEY = Urls.yandexMapDecoderApiKey;
+
+
   HelpRequestType _requestType = HelpRequestType.me;
   final _detailsController = TextEditingController();
   final _locationController = TextEditingController();
@@ -33,7 +40,7 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
   double? _longitude;
   String? _locationError;
   bool _isGettingLocation = false;
-
+  String? _decodedAddress;
   // Family members data
   List<FamilyMember> _familyMembers = [];
   FamilyMember? _selectedFamilyMember;
@@ -83,10 +90,14 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    setState(() => _isGettingLocation = true);
+    setState(() {
+
+      _isGettingLocation = false;
+    });
 
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
       if (!serviceEnabled) {
         setState(() {
           _locationError = 'Location services are disabled';
@@ -125,10 +136,41 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
         _locationError = null;
         _isGettingLocation = false;
       });
+
+      if (widget.isOnline) {
+        _reverseGeocodeLocation(position.latitude, position.longitude);
+      }
     } catch (e) {
       setState(() {
         _locationError = 'Failed to get location: $e';
         _isGettingLocation = false;
+      });
+    }
+  }
+
+  Future<void> _reverseGeocodeLocation(double latitude, double longitude) async {
+    try {
+      final url = 'https://geocode-maps.yandex.ru/v1/?apikey=$YANDEX_API_KEY&geocode=$longitude,$latitude&lang=en_US&format=json&results=1';
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final geoObjects = data['response']['GeoObjectCollection']['featureMember'];
+
+        if (geoObjects.isNotEmpty) {
+          final geoObject = geoObjects[0]['GeoObject'];
+          final address = geoObject['metaDataProperty']['GeocoderMetaData']['text'];
+
+          setState(() {
+            _decodedAddress = address;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error reverse geocoding: $e');
+      setState(() {
+        _decodedAddress = 'Unable to get address';
       });
     }
   }
@@ -330,17 +372,25 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
                       ],
                     ),
                     SizedBox(height: 8),
+                    // In your build method, replace the location display part with:
                     if (_locationError != null)
                       Text(
                         _locationError!,
                         style: TextStyle(color: Colors.red, fontSize: 12),
                       )
-                    else if (_latitude != null && _longitude != null)
+                    else if (_latitude != null && _longitude != null) ...[
                       Text(
                         'Lat: ${_latitude!.toStringAsFixed(6)}, Lng: ${_longitude!.toStringAsFixed(6)}',
                         style: TextStyle(color: Colors.green, fontSize: 12),
-                      )
-                    else
+                      ),
+                      if (_decodedAddress != null) ...[
+                        SizedBox(height: 4),
+                        Text(
+                          _decodedAddress!,
+                          style: TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ] else
                       Text(
                         'Getting current location...',
                         style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -458,6 +508,7 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
         'request_type': _requestType.toString(),
         'details': _detailsController.text,
         'location': _locationController.text,
+        'decoded_address': _decodedAddress,
         'latitude': _latitude,
         'longitude': _longitude,
         'image_path': _imagePath,
@@ -514,6 +565,7 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
         'request_type': _getRequestTypeString(),
         'details': _detailsController.text,
         'location': _locationController.text,
+        'decoded_address': _decodedAddress,
         'latitude': _latitude,
         'longitude': _longitude,
         'timestamp': DateTime.now().toIso8601String(),

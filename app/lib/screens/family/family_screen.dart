@@ -151,7 +151,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     Icons.share_location,
                     Colors.blue[600]!,
                     LanguageController.get('share_location_with_family') ?? 'Share your location with family members',
-                        () => _showComingSoon(context, 'Location Sharing'),
+                        () => _showComingSoon(
+                            context,
+                            LanguageController.get('location_sharing_feature'),
+                        ),
                   ),
                 ],
               ),
@@ -279,7 +282,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             Icon(Icons.info_outline, color: Colors.orange[600]),
             const SizedBox(width: 8),
             Text(
-              'Coming Soon',
+             LanguageController.get('coming_soon'),
               style: TextStyle(
                 color: Colors.grey[800],
                 fontWeight: FontWeight.bold,
@@ -288,7 +291,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           ],
         ),
         content: Text(
-          '$feature feature will be available soon!',
+          feature + LanguageController.get("available_soon"),
           style: TextStyle(
             color: Colors.grey[700],
             fontSize: 16,
