@@ -18,13 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(
-        [
+       [
+            path('auth/', include('adminUsers.urls')),
             path('emergency/', include('EmergencyServices.urls')),
             path('request/', include('dashboard.urls')),
-        ]
+       ]
     ))
 ]
 if settings.DEBUG:
