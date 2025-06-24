@@ -78,6 +78,8 @@
 
   "modal_no_user_data": "No user information available for this emergency",
   "modal_no_info": "No info",
-  "emergency_error_user_fetch": "Failed to fetch user data"
+  "emergency_error_user_fetch": "Failed to fetch user data",
+  "history_user_ifo": "View Info",
+  "location_not_provided": "Location not provided"
 
 }

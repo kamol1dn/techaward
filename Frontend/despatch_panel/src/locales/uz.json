@@ -77,6 +77,8 @@
 
   "modal_no_user_data": "Ushbu favqulodda vaziyat uchun foydalanuvchi ma'lumotlari mavjud emas",
   "modal_no_info": "Ma'lumot yo'q",
-  "emergency_error_user_fetch": "Foydalanuvchi ma'lumotlarini olishda xatolik"
+  "emergency_error_user_fetch": "Foydalanuvchi ma'lumotlarini olishda xatolik",
+  "history_user_ifo": "Ma'lumotni ko'rish",
+  "location_not_provided": "Joylashuv ko'rsatilmagan"
 
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Search, Filter, MapPin, User, Phone, Mail, Clock, ExternalLink, Edit2, Save, X } from 'lucide-react';
+import { AlertTriangle, Search, Filter, MapPin, User, Phone, Mail, Clock, ExternalLink, Edit2, Save, X, Info } from 'lucide-react';
 import './i18n.js';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -209,7 +209,7 @@ const UserDataModal = ({ userData, onClose }) => {
         </div>
       );
     }
-
+    
     // Helper function to check if a field has valid data
     const hasValidData = (value) => {
       return value && value !== null && value !== undefined && value !== '' && value.toLowerCase() !== 'none';
@@ -472,7 +472,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
             </div>
             <div className="flex items-center gap-1 mb-1">
               <MapPin size={14} />
-              {emergency.location_info || 'Location not provided'}
+              {emergency.location_info || t('location_not_provided')}
             </div>
             <div className="flex items-center gap-1 mb-1">
               <AlertTriangle size={14} />
@@ -682,6 +682,43 @@ const getUserData = () => {
 const Dashboard = ({ user, onLogout }) => {
   const { t, i18n } = useTranslation();
 
+    const handleHistoryUserShow = async (emergency) => {
+  try {
+    const token = getAccessToken();
+    
+    if (!token) {
+      setError(t('emergency_error_token'));
+      return;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/request/emergency`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // Find the specific emergency to get its user_data
+      const emergencyData = data.request?.find(req => req.id === emergency.id);
+      
+      if (emergencyData && emergencyData.user_data) {
+        setSelectedUser(emergencyData.user_data);
+      } else {
+        // Show modal with no user data message
+        setSelectedUser({ noData: true });
+      }
+    } else {
+      setError(t('emergency_error_user_fetch'));
+    }
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    setError(t('emergency_error_network'));
+  }
+};
+
   const getFilterOptions = () => {
     if (user.role === 'responder') {
       return [
@@ -708,8 +745,7 @@ const Dashboard = ({ user, onLogout }) => {
     // Sort in descending order (latest first)
     return dateB.getTime() - dateA.getTime();
   });
-
-    
+ 
   };
 
   const [emergencies, setEmergencies] = useState([]);
@@ -863,57 +899,73 @@ const Dashboard = ({ user, onLogout }) => {
   // ----- HISTORY PAGE -----
   if (currentPage === 'history') {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setCurrentPage('dashboard')}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                {t('history_back')}
-              </button>
-              <h1 className="text-xl font-bold">{t('history_title')}</h1>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setCurrentPage('dashboard')}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              {t('history_back')}
+            </button>
+            <h1 className="text-xl font-bold">{t('history_title')}</h1>
+          </div>
+        </div>
+      </header>
+
+      <div className="p-6">
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-4 border-b">
+            <div className="grid grid-cols-6 gap-4 font-medium text-gray-700">
+              <div>{t('emergency_id')}</div>
+              <div>{t('emergency_type')}</div>
+              <div>{t('emergency_user_info')}</div>
+              <div>{t('emergency_status')}</div>
+              <div>{t('emergency_date')}</div>
+              <div>{t('emergency_assigned_to')}</div>
             </div>
           </div>
-        </header>
 
-        <div className="p-6">
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-4 border-b">
-              <div className="grid grid-cols-6 gap-4 font-medium text-gray-700">
-                <div>{t('emergency_id')}</div>
-                <div>{t('emergency_type')}</div>
-                <div>{t('emergency_contact')}</div>
-                <div>{t('emergency_status')}</div>
-                <div>{t('emergency_date')}</div>
-                <div>{t('emergency_assigned_to')}</div>
-              </div>
-            </div>
-
-            <div className="p-4 divide-y">
-              {resolvedEmergencies.length === 0 ? (
-                <div className="text-center text-gray-500 py-6">{t('history_no_items')}</div>
-              ) : (
-                resolvedEmergencies.map((emergency) => (
-                  <div
-                    key={emergency.id}
-                    className="grid grid-cols-6 gap-4 py-3 text-sm text-gray-800"
-                  >
-                    <div>{emergency.id}</div>
-                    <div>{emergency.type}</div>
-                    <div>{emergency.contact || 'N/A'}</div>
-                    <div className="capitalize">{emergency.status}</div>
-                    <div>{new Date(emergency.date_created).toLocaleString()}</div>
-                    <div>{emergency.assigned_to || 'Unassigned'}</div>
+          <div className="p-4 divide-y">
+            {resolvedEmergencies.length === 0 ? (
+              <div className="text-center text-gray-500 py-6">{t('history_no_items')}</div>
+            ) : (
+              resolvedEmergencies.map((emergency) => (
+                <div
+                  key={emergency.id}
+                  className="grid grid-cols-6 gap-4 py-3 text-sm text-gray-800"
+                >
+                  <div>{emergency.id}</div>
+                  <div>{emergency.type}</div>
+                  <div>
+                    <button
+                      onClick={() => handleHistoryUserShow(emergency)}
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs"
+                    >
+                      <Info size={12} />
+                      {t('history_user_ifo')}
+                    </button>
                   </div>
-                ))
-              )}
-            </div>
+                  <div className="capitalize">{emergency.status}</div>
+                  <div>{new Date(emergency.date_created).toLocaleString()}</div>
+                  <div>{emergency.assigned_to || 'Unassigned'}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
-    );
+
+      {/* Add the modal for history user data */}
+      {selectedUser && (
+        <UserDataModal
+          userData={selectedUser}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
+    </div>
+  );
   }
 
   // ----- MAIN DASHBOARD PAGE -----
