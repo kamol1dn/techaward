@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Search, Filter, MapPin, User, Phone, Mail, Clock, ExternalLink, Edit2, Save, X } from 'lucide-react';
+import './i18n.js';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
+
 
 // API configuration
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
@@ -9,6 +13,8 @@ const AuthContext = React.createContext();
 
 // Login Component
 const LoginPage = ({ onLogin }) => {
+  const { t, i18n } = useTranslation();
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -19,7 +25,7 @@ const LoginPage = ({ onLogin }) => {
 
   const handleSubmit = async () => {
     if (!formData.username || !formData.password) {
-      setError('Please fill in all fields');
+      setError(t('login_error_required'));
       return;
     }
 
@@ -77,11 +83,11 @@ const LoginPage = ({ onLogin }) => {
         onLogin(userData);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || errorData.message || 'Login failed');
+        setError(errorData.error || errorData.message || t('login_error_invalid'));
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Network error. Please try again.');
+      setError(t('login_error_network'));
     } finally {
       setLoading(false);
     }
@@ -95,112 +101,158 @@ const LoginPage = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <div className="text-center mb-6">
-          <AlertTriangle className="mx-auto text-red-500 mb-2" size={48} />
-          <h1 className="text-2xl font-bold text-gray-800">Emergency Dispatch</h1>
-          <p className="text-gray-600">Secure Access Portal</p>
+
+    <div className="h-screen bg-gray-800 relative">
+  {/* 🌐 Language switcher in top-right corner */}
+  <div className="absolute top-4 right-4 z-50">
+    <LanguageSwitcher />
+  </div>
+
+  {/* Centered login form */}
+  <div className="flex items-center justify-center h-full">
+    <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+      <div className="text-center mb-6">
+        <AlertTriangle className="mx-auto text-red-500 mb-2" size={48} />
+        <h1 className="text-2xl font-bold text-gray-800">{t('login_title')}</h1>
+        <p className="text-gray-600">{t('login_subtitle')}</p>
+      </div>
+
+      <div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-medium mb-2">
+            {t('login_username')}
+          </label>
+          <input
+            type="text"
+            placeholder={t('login_place')}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            onKeyDown={handleKeyDown}
+          />
         </div>
 
-        <div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Username
-            </label>
-            <input
-              type="text"
-              placeholder="Enter username"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              value={formData.username}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-medium mb-2">
+            {t('login_password')}
+          </label>
+          <input
+            type="password"
+            placeholder={t('login_password_place')}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="Enter password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Role
-            </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              value={formData.role}
-              onChange={(e) => setFormData({...formData, role: e.target.value})}
-              onKeyDown={handleKeyDown}
-            >
-              <option value="dispatcher">Dispatcher</option>
-              <option value="responder">Responder</option>
-            </select>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-medium mb-2">
+            {t('login_role')}
+          </label>
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            onKeyDown={handleKeyDown}
           >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+            <option value="dispatcher">{t('login_dispatcher')}</option>
+            <option value="responder">{t('login_responder')}</option>
+          </select>
         </div>
+
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+        >
+          {loading ? t('login_loading') : t('login_button')}
+        </button>
       </div>
     </div>
+  </div>
+</div>
+
   );
 };
 
 // User Data Modal
 const UserDataModal = ({ userData, onClose }) => {
-  if (!userData) return null;
+    const { t, i18n } = useTranslation();
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">User Information</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ×
-          </button>
+    if (!userData) return null;
+
+    // Check if no user data available
+    if (userData.noData) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">{t('emergency_user_info')}</h2>
+              <button
+                onClick={onClose}
+                className="text-red-500 hover:text-red-700 font-semibold"
+              >
+                X
+              </button>
+            </div>
+            <div className="text-center text-gray-500 py-4">
+              {t('modal_no_user_data')}
+            </div>
+          </div>
         </div>
-        <div className="space-y-2">
-          <div><strong>Name:</strong> {userData.name} {userData.surname}</div>
-          <div><strong>Phone:</strong> {userData.phone}</div>
-          <div><strong>Email:</strong> {userData.email}</div>
-          <div><strong>Age:</strong> {userData.age}</div>
-          <div><strong>Gender:</strong> {userData.gender}</div>
-          <div><strong>Passport:</strong> {userData.passport}</div>
-          <div><strong>Blood Type:</strong> {userData.blood_type}</div>
-          <div><strong>Allergies:</strong> {userData.allergies}</div>
-          <div><strong>Illness:</strong> {userData.illness}</div>
-          <div><strong>Additional Info:</strong> {userData.additional_info}</div>
+      );
+    }
+
+    // Helper function to check if a field has valid data
+    const hasValidData = (value) => {
+      return value && value !== null && value !== undefined && value !== '' && value.toLowerCase() !== 'none';
+    };
+
+    // Helper function to display field or "No info"
+    const displayField = (value) => {
+      return hasValidData(value) ? value : t('modal_no_info');
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{t('emergency_user_info')}</h2>
+            <button
+              onClick={onClose}
+              className="text-red-500 hover:text-red-700 font-semibold"
+            >
+              X
+            </button>
+          </div>
+          <div className="space-y-2">
+            <div><strong>{t('modal_name')}:</strong> {displayField(userData.name)} {displayField(userData.surname)}</div>
+            <div><strong>{t('modal_phone')}:</strong> {displayField(userData.phone)}</div>
+            <div><strong>{t('modal_email')}:</strong> {displayField(userData.email)}</div>
+            <div><strong>{t('age')}:</strong> {displayField(userData.age)}</div>
+            <div><strong>{t('gender')}:</strong> {displayField(userData.gender)}</div>
+            <div><strong>{t('passport')}:</strong> {displayField(userData.passport)}</div>
+            <div><strong>{t('modal_blood_type')}:</strong> {displayField(userData.blood_type)}</div>
+            <div><strong>{t('modal_allergies')}:</strong> {displayField(userData.allergies)}</div>
+            <div><strong>{t('modal_illness')}:</strong> {displayField(userData.illness)}</div>
+            <div><strong>{t('modal_additional_info')}:</strong> {displayField(userData.additional_info)}</div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+ };
 
 // Emergency Card Component
 const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignmentUpdate }) => {
+  const { t, i18n } = useTranslation();
+
   // Add this function in EmergencyCard component
  const shouldShowStatusButton = () => {
   if (user.role === 'dispatcher') {
@@ -209,6 +261,16 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
     return emergency.status === 'in_progress';
   }
   return false;
+ };
+
+ const getTranslatedStatus = (status) => {
+    switch (status) {
+      case 'pending': return t('filter_pending');
+      case 'in_progress': return t('filter_in_progress');
+      case 'resolved': return t('filter_resolved');
+      case 'done': return t('filter_resolved'); // fallback for old status
+      default: return status;
+    }
  };
 
   const [updating, setUpdating] = useState(false);
@@ -242,12 +304,12 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
  const getStatusButtonText = (status, userRole) => {
   if (userRole === 'dispatcher') {
     if (status === 'pending') return 'Start';
-    return 'Cannot Update'; // For non-pending status
+    return t('emergency_cannot_update'); // For non-pending status
   } else if (userRole === 'responder') {
     if (status === 'in_progress') return 'Complete';
-    return 'Cannot Update'; // For non-in_progress status
+    return t('emergency_cannot_update'); // For non-in_progress status
   }
-  return 'Completed';
+  return t('emergency_completed');
  };
 
  const handleStatusUpdate = async () => {
@@ -257,18 +319,18 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
   
   // Check role-based permissions
   if (userRole === 'dispatcher' && emergency.status !== 'pending') {
-    setError('Dispatchers can only start pending emergencies');
+    setError(t('emergency_error_dispatcher_permission'));
     return;
   }
   
   if (userRole === 'responder' && emergency.status !== 'in_progress') {
-    setError('Responders can only complete in-progress emergencies');
+    setError(t('emergency_error_responder_permission'));
     return;
   }
   
   // Check if trying to start service without assignment (dispatcher only)
   if (userRole === 'dispatcher' && emergency.status === 'pending' && (!emergency.assigned_to || emergency.assigned_to.trim() === '')) {
-    setError('Please assign staff before starting the service');
+    setError(t('emergency_error_assignment_required'));
     return;
   }
   
@@ -279,7 +341,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
     const token = getAccessToken();
     
     if (!token) {
-      setError('No authentication token found');
+      setError(t('emergency_error_token'));
       setUpdating(false);
       return;
     }
@@ -304,7 +366,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
       setError('');
     } else {
       const errorData = await response.json();
-      let errorMessage = 'Failed to update status';
+      let errorMessage = t('emergency_error_status_failed');
       if (errorData.message) {
         errorMessage = errorData.message;
       }
@@ -323,13 +385,13 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
  const handleAssignmentSave = async () => {
   // ADDED: Check if user is dispatcher before allowing assignment
   if (user.role !== 'dispatcher') {
-    setError('Only dispatchers can assign staff to emergencies');
+    setError(t('emergency_error_assignment_permission'));
     return;
   }
 
   // ADDED: Check if emergency is still pending
   if (emergency.status !== 'pending') {
-    setError('Cannot change assignment after emergency has been started');
+    setError(t('emergency_error_assignment_status'));
     return;
   }
 
@@ -340,7 +402,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
     const token = getAccessToken();
     
     if (!token) {
-      setError('No authentication token found');
+      setError(t('emergency_error_token'));
       setUpdating(false);
       return;
     }
@@ -366,7 +428,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
       setError('');
     } else {
       const errorData = await response.json();
-      let errorMessage = 'Failed to update assignment';
+      let errorMessage = t('emergency_error_assignment_failed');
       if (errorData.message) {
         errorMessage = errorData.message;
       }
@@ -396,7 +458,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
           <div className="flex items-center gap-2 mb-1">
             <span className="font-semibold text-lg">#{emergency.id}</span>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(emergency.status)}`}>
-              {emergency.status === 'resolved' ? 'resolved' : emergency.status.replace('_', ' ')}
+               {getTranslatedStatus(emergency.status)}
             </span>
           </div>
           <div className="text-sm text-gray-600">
@@ -414,23 +476,23 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
             </div>
             <div className="flex items-center gap-1 mb-1">
               <AlertTriangle size={14} />
-              <span className="font-medium">Extra Info:</span>
+              <span className="font-medium">{t('emergency_extra_info')}:</span>
               <span className="text-gray-700">
-                {emergency.extra_info || 'No information'}
+                {emergency.extra_info || t('emergency_no_info')}
               </span>
             </div>
             
             {/* Assigned To Section */}
             <div className="flex items-center gap-1 mt-2">
               <User size={14} />
-              <span className="font-medium">Assigned to:</span>
+              <span className="font-medium">{t('emergency_assigned_to')}:</span>
               {isEditingAssignment ? (
                 <div className="flex items-center gap-1 ml-1">
                   <input
                     type="text"
                     value={assignmentValue}
                     onChange={(e) => setAssignmentValue(e.target.value)}
-                    placeholder="Enter staff name"
+                    placeholder={t('emergency_assign_place')}
                     className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     style={{ minWidth: '120px' }}
                     autoFocus
@@ -464,14 +526,14 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
                     onClick={handleAssignmentSave}
                     disabled={updating}
                     className="p-1 text-green-600 hover:text-green-800 disabled:opacity-50"
-                    title="Save"
+                    title={t('emergency_save')}
                   >
                     <Save size={12} />
                   </button>
                   <button
                     onClick={handleAssignmentCancel}
                     className="p-1 text-red-600 hover:text-red-800"
-                    title="Cancel"
+                    title={t('emergency_cancel')}
                   >
                     <X size={12} />
                   </button>
@@ -479,14 +541,14 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
               ) : (
                 <div className="flex items-center gap-1 ml-1">
                   <span className="text-gray-800">
-                    {emergency.assigned_to || 'Unassigned'}
+                    {emergency.assigned_to || t('emergency_unassigned')}
                   </span>
                   {/* CHANGED: Use canEditAssignment instead of !isCompleted */}
                   {canEditAssignment && (
                     <button
                       onClick={() => setIsEditingAssignment(true)}
                       className="p-1 text-blue-600 hover:text-blue-800"
-                      title="Edit assignment"
+                      title={t('emergency_edit_assignment')}
                     >
                       <Edit2 size={12} />
                     </button>
@@ -522,7 +584,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
           className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 flex items-center gap-1"
         >
           <User size={14} />
-          User Info
+          {t('emergency_user_info')}
         </button>
         
         <a
@@ -532,7 +594,7 @@ const EmergencyCard = ({ emergency, user, onStatusUpdate, onShowUser, onAssignme
           className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 flex items-center gap-1"
         >
           <ExternalLink size={14} />
-          Directions
+          {t('emergency_directions')}
         </a>
       </div>
     </div>
@@ -618,21 +680,24 @@ const getUserData = () => {
 
 // Dashboard Component
 const Dashboard = ({ user, onLogout }) => {
+  const { t, i18n } = useTranslation();
+
   const getFilterOptions = () => {
     if (user.role === 'responder') {
       return [
-        'All Status',
-        'In Progress', // Responders mainly work with in-progress tasks
-        'Resolved'
+        { label: t('filter_all'), value: 'all' },
+        { label: t('filter_in_progress'), value: 'in_progress' },
+        { label: t('filter_resolved'), value: 'resolved' }
       ];
     } else {
       return [
-        'All Status',
-        'Pending',
-        'In Progress',
-        'Resolved'
+        { label: t('filter_all'), value: 'all' },
+        { label: t('filter_pending'), value: 'pending' },
+        { label: t('filter_in_progress'), value: 'in_progress' },
+        { label: t('filter_resolved'), value: 'resolved' }
       ];
     }
+  }; 
 
   const sortEmergenciesByLatest = (emergencies) => {
    return [...emergencies].sort((a, b) => {
@@ -643,12 +708,13 @@ const Dashboard = ({ user, onLogout }) => {
     // Sort in descending order (latest first)
     return dateB.getTime() - dateA.getTime();
   });
- };
+
+    
   };
 
   const [emergencies, setEmergencies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('All Status');
+  const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -665,7 +731,7 @@ const Dashboard = ({ user, onLogout }) => {
     const token = getAccessToken();
     
     if (!token) {
-      setError('No authentication token found');
+      setError(t('emergency_error_token'));
       onLogout();
       return;
     }
@@ -733,36 +799,48 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   const handleShowUser = async (emergency) => {
-    const userData = {
-      name: "Test",
-      surname: "User",
-      phone: "+998901234567",
-      email: "kamoliddinsharopov1@gmail.com",
-      age: 25,
-      gender: "Male",
-      passport: "AD1234567",
-      blood_type: "A+",
-      allergies: "none",
-      illness: "none",
-      additional_info: "none"
-    };
-    setSelectedUser(userData);
-  };
+    try {
+      const token = getAccessToken();
+      
+      if (!token) {
+        setError(t('emergency_error_token'));
+        return;
+      }
 
-  const sortEmergenciesByLatest = (emergencies) => {
-    return [...emergencies].sort((a, b) => {
-      const dateA = new Date(a.date_created);
-      const dateB = new Date(b.date_created);
-      return dateB.getTime() - dateA.getTime();
-    });
-  };
+      const response = await fetch(`${API_BASE_URL}/request/emergency`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Find the specific emergency to get its user_data
+        const emergencyData = data.request?.find(req => req.id === emergency.id);
+        
+        if (emergencyData && emergencyData.user_data) {
+          setSelectedUser(emergencyData.user_data);
+        } else {
+          // Show modal with no user data message
+          setSelectedUser({ noData: true });
+        }
+      } else {
+        setError(t('emergency_error_user_fetch'));
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setError(t('emergency_error_network'));
+    }
+ };
 
   const filteredEmergencies = sortEmergenciesByLatest(
     emergencies.filter((emergency) => {
       const matchesFilter =
-        filter === 'All Status' ||
-        emergency.status === filter.toLowerCase().replace(' ', '_') ||
-        (filter === 'Resolved' && (emergency.status === 'resolved' || emergency.status === 'done'));
+        filter === 'all' ||
+        emergency.status === filter ||
+        (filter === 'resolved' && (emergency.status === 'resolved' || emergency.status === 'done'));
 
       const matchesSearch =
         search === '' ||
@@ -793,9 +871,9 @@ const Dashboard = ({ user, onLogout }) => {
                 onClick={() => setCurrentPage('dashboard')}
                 className="text-gray-600 hover:text-gray-800"
               >
-                ← Back to Dashboard
+                {t('history_back')}
               </button>
-              <h1 className="text-xl font-bold">Resolved Emergency History</h1>
+              <h1 className="text-xl font-bold">{t('history_title')}</h1>
             </div>
           </div>
         </header>
@@ -804,18 +882,18 @@ const Dashboard = ({ user, onLogout }) => {
           <div className="bg-white rounded-lg shadow">
             <div className="p-4 border-b">
               <div className="grid grid-cols-6 gap-4 font-medium text-gray-700">
-                <div>ID</div>
-                <div>Type</div>
-                <div>Contact</div>
-                <div>Status</div>
-                <div>Date</div>
-                <div>Assigned To</div>
+                <div>{t('emergency_id')}</div>
+                <div>{t('emergency_type')}</div>
+                <div>{t('emergency_contact')}</div>
+                <div>{t('emergency_status')}</div>
+                <div>{t('emergency_date')}</div>
+                <div>{t('emergency_assigned_to')}</div>
               </div>
             </div>
 
             <div className="p-4 divide-y">
               {resolvedEmergencies.length === 0 ? (
-                <div className="text-center text-gray-500 py-6">No resolved emergencies in history</div>
+                <div className="text-center text-gray-500 py-6">{t('history_no_items')}</div>
               ) : (
                 resolvedEmergencies.map((emergency) => (
                   <div
@@ -845,21 +923,22 @@ const Dashboard = ({ user, onLogout }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle className="text-red-500" size={24} />
-            <span className="text-xl font-bold">Emergency Dispatch Panel</span>
+            <span className="text-xl font-bold">{t('dashboard_title')}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-gray-600">Welcome, {user?.username} ({user?.role})</span>
+            <span className="text-gray-600">{t('welcome_user')} {user?.username} ({user?.role})</span>
+            <LanguageSwitcher />
             <button
               onClick={() => setCurrentPage('history')}
               className="text-blue-600 hover:text-blue-800"
             >
-              History
+              {t('dashboard_history')}
             </button>
             <button
               onClick={onLogout}
               className="text-red-600 hover:text-red-800"
             >
-              Logout
+              {t('dashboard_logout')}
             </button>
           </div>
         </div>
@@ -869,13 +948,13 @@ const Dashboard = ({ user, onLogout }) => {
         <div className="flex gap-4 mb-6">
           <div className="flex items-center gap-2">
             <Filter size={20} />
-            <select
+           <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {getFilterOptions().map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
           </div>
@@ -884,7 +963,7 @@ const Dashboard = ({ user, onLogout }) => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Search by name, type, ID, or assigned staff..."
+              placeholder={t('dashboard_search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onPaste={(e) => {
@@ -899,10 +978,10 @@ const Dashboard = ({ user, onLogout }) => {
         </div>
 
         {loading ? (
-          <div className="text-center py-8">Loading emergencies...</div>
+          <div className="text-center py-8">{t('dashboard_loading')}</div>
         ) : filteredEmergencies.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No emergencies found
+            {t('dashboard_no_results')}
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -932,6 +1011,7 @@ const Dashboard = ({ user, onLogout }) => {
 
 // Main App Component
 const App = () => {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -1006,7 +1086,7 @@ const handleLogout = async () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">Loading...</div>
+        <div className="text-center">{t('app_loading')}</div>
       </div>
     );
   }

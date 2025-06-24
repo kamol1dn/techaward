@@ -66,6 +66,7 @@ MIDDLEWARE = [
 # for ngrok server to work
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
