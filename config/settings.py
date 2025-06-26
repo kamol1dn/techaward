@@ -13,9 +13,12 @@ from datetime import timedelta
 from pathlib import Path
 from decouple import config
 from django.conf import settings
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Create logs directory if it doesn't exist
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -203,3 +206,83 @@ EMAIL_USE_TLS = False
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') 
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file_general': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'django.log'),
+            'maxBytes': 15*1024*1024,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'file_auth': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'auth.log'),
+            'maxBytes': 15*1024*1024,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'file_otp': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'otp.log'),
+            'maxBytes': 15*1024*1024,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'file_errors': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'errors.log'),
+            'maxBytes': 15*1024*1024,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        # Your authentication views
+        'techaward.views': {  # Replace 'your_app_name' with actual app name
+            'handlers': ['file_auth', 'file_errors', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # OTP views
+        'otp_views': {
+            'handlers': ['file_otp', 'file_errors', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # General Django logging
+        'django': {
+            'handlers': ['file_general', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Root logger for any other logs
+        'root': {
+            'handlers': ['file_general', 'file_errors', 'console'],
+            'level': 'INFO',
+        },
+    },
+}
