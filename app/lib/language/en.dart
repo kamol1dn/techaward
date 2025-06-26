@@ -2,7 +2,7 @@ final Map<String, String> en = {
   'help_tutorial': 'Help & Tutorials',
 
   // splash screen
-  'emergency_services': 'Emergency Services',
+  'emergency_services': '84U.uz - Aid For You',
   'login_register': 'Login / Register',
   'quick_numbers': 'Quick Numbers / Tutorials',
   'en': '🇺🇸 English',
