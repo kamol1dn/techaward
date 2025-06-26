@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../language/language_controller.dart';
 import 'login_screen.dart';
@@ -172,7 +173,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               padding: EdgeInsets.all(40),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(80),
+                                borderRadius: BorderRadius.circular(150),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.white.withOpacity(0.3),
@@ -182,11 +183,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                   ),
                                 ],
                               ),
-                              child: Icon(
-                                Icons.local_hospital,
-                                size: 80,
-                                color: Colors.white,
-                              ),
+                              child:  SvgPicture.asset(
+                              'assets/logo.svg',
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                              semanticsLabel: 'Dart Logo',
+                              height: 96,
+                              width: 96,
+                            )
                             ),
                           );
                         },

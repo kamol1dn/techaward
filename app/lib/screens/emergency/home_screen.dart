@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'request_help_screen.dart';
 import '../../services/connectivity_service.dart';
 import '../../language/language_controller.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -96,11 +97,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(50),
                           ),
-                          child: Icon(
-                            Icons.emergency,
-                            size: 48,
-                            color: Colors.white,
-                          ),
+                          child: SvgPicture.asset(
+                            'assets/logo.svg',
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            semanticsLabel: 'Dart Logo',
+                            height: 48,
+                            width: 48,
+                          )
                         ),
                         SizedBox(width: 16),
                         Expanded(
