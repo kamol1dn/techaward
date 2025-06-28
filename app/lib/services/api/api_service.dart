@@ -104,6 +104,7 @@ class ApiService {
         String method = 'GET',
         Map<String, dynamic>? body,
         Map<String, String>? additionalHeaders,
+        String? customBaseUrl,
       }) async {
     final headers = {
       'Content-Type': 'application/json',
@@ -115,7 +116,7 @@ class ApiService {
       headers['Authorization'] = 'Bearer $_accessToken';
     }
 
-    final uri = Uri.parse('$baseUrl$endpoint');
+    final uri = Uri.parse('${customBaseUrl ?? baseUrl}$endpoint');
 
     try {
       http.Response response;
@@ -393,7 +394,7 @@ class ApiService {
     print('[APP] 👤 ApiService.getProfile() - Starting...');
 
     try {
-      final response = await _instance._makeRequest('$baseUrl/accounts/profile/', method: 'GET');
+      final response = await _instance._makeRequest('$baseUrl/accounts/profile/', method: 'GET',);
 
       if (response != null && response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -466,6 +467,7 @@ class ApiService {
 
   // Emergency request
   static Future<Map<String, dynamic>> sendEmergencyRequest(EmergencyRequest request) async {
+    await _instance._init();
     print('[APP] 🚨 ApiService.sendEmergencyRequest() - Starting...');
     print('[APP] 🚨 Emergency request: ${request.toJson()}');
 
@@ -485,6 +487,7 @@ class ApiService {
         '/emergency/request',
         method: 'POST',
         body: request.toJson(),
+        customBaseUrl: Urls.apiEmergencyBaseUrl,
       );
 
       if (response == null) {
