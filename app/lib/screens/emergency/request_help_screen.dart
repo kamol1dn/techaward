@@ -889,7 +889,7 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
   }
 
   Future<void> _takePicture() async {
-    // TODO: Implement camera functionality
+    // TODO: Implement camera functionalityc
     setState(() => _imagePath = 'dummy_path.jpg');
 
     ScaffoldMessenger.of(context).showSnackBar(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'emergency/home_screen.dart';
 import 'family/family_screen.dart';
 import 'guides/help_screen.dart';
@@ -67,12 +68,35 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
     _animationController.forward();
+
+    _initLocation();
+
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+  void _initLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) return;
+    }
+
+    // Start listening immediately
+    Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5, // meters
+      ),
+    ).listen((Position position) {
+      print('Warmup: ${position.latitude}, ${position.longitude}');
+    });
   }
 
   void _onDestinationSelected(int index) {
