@@ -484,7 +484,7 @@ class ApiService {
 
     try {
       final response = await _instance._makeRequest(
-        '/emergency/request',
+        '/emergency/request/',
         method: 'POST',
         body: request.toJson(),
         customBaseUrl: Urls.apiEmergencyBaseUrl,
