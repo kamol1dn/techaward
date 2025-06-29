@@ -42,11 +42,11 @@ dependencies:
   restart_app: any
   intl: ^0.20.2
   flutter_svg: any
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: any
@@ -125,6 +125,9 @@ flutter:
         - asset: assets/fonts/nunito/Nunito-BlackItalic.ttf
           weight: 900
           style: italic
-
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon/logo.png"
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
