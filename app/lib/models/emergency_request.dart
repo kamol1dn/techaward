@@ -23,6 +23,8 @@ class EmergencyRequest {
     this.userData,
   });
 
+
+
   Map<String, dynamic> toJson() => {
     'type': type.toString().split('.').last,
     'is_for_me': isForMe,

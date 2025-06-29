@@ -32,6 +32,7 @@ class PersonalData {
   };
 }
 
+
 class MedicalData {
   final String bloodType;
   final String allergies;
@@ -44,6 +45,7 @@ class MedicalData {
     required this.illness,
     required this.additionalInfo,
   });
+
 
   Map<String, dynamic> toJson() => {
     'blood_type': bloodType,

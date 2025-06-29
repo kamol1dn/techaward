@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:talaba_plus/language/language_controller.dart';
 import '../../services/api/api_service.dart';
 import 'register_screen.dart';
@@ -100,11 +101,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
-                                    Icons.medical_services_rounded,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: SvgPicture.asset(
+                                        'assets/logo.svg',
+                                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                        semanticsLabel: 'Dart Logo',
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                    )
                                 ),
                               );
                             },

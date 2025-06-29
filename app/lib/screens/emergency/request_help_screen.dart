@@ -178,286 +178,690 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getServiceName()),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                  LanguageController.get('who_needs_help') ?? 'Who needs help?',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+      backgroundColor: Colors.grey[50],
+      body: Column(
+        children: [
+          // Header Section with Gradient
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.red[700]!, Colors.red[300]!],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-              SizedBox(height: 8),
-
-              // Help request type selection
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<HelpRequestType>(
-                      title: Text(
-                          LanguageController.get('me')),
-                      value: HelpRequestType.me,
-                      groupValue: _requestType,
-                      onChanged: (value) => setState(() {
-                        _requestType = value!;
-                        _selectedFamilyMember = null;
-                      }),
-                    ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<HelpRequestType>(
-                      title: Text(
-                          LanguageController.get('other_person')),
-                      value: HelpRequestType.other,
-                      groupValue: _requestType,
-                      onChanged: (value) => setState(() {
-                        _requestType = value!;
-                        _selectedFamilyMember = null;
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-
-              // Family member option
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<HelpRequestType>(
-                      title: Text(
-                          LanguageController.get('family_member')),
-                      value: HelpRequestType.familyMember,
-                      groupValue: _requestType,
-                      onChanged: _familyMembers.isEmpty ? null : (value) => setState(() {
-                        _requestType = value!;
-                        _selectedFamilyMember = null;
-                      }),
-                    ),
-                  ),
-                  if (_loadingFamilyMembers)
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                ],
-              ),
-
-              // Show family members dropdown if family member is selected
-              if (_requestType == HelpRequestType.familyMember) ...[
-                SizedBox(height: 16),
-                if (_familyMembers.isEmpty)
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.orange),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            LanguageController.get('no_family_members_found') ?? 'No family members found.',
-                            style: TextStyle(color: Colors.orange.shade800),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  DropdownButtonFormField<FamilyMember>(
-                    decoration: InputDecoration(
-                      //labelText: 'Select Family Member',
-                      labelText: LanguageController.get('select_family_member') ?? 'Select Family Member',
-                      border: OutlineInputBorder(),
-                    ),
-                    value: _selectedFamilyMember,
-                    items: _familyMembers.map((member) {
-                      return DropdownMenuItem<FamilyMember>(
-                        value: member,
-                        child: Text('${member.name} (${member.relation})'),
-                      );
-                    }).toList(),
-                    onChanged: (FamilyMember? newValue) {
-                      setState(() => _selectedFamilyMember = newValue);
-                    },
-                    validator: (value) {
-                      if (_requestType == HelpRequestType.familyMember && value == null) {
-                        //return 'Please select a family member';
-                        return LanguageController.get('please_select_family_member');
-                      }
-                      return null;
-                    },
-                  ),
-              ],
-
-              SizedBox(height: 20),
-
-              // Additional details section
-              if (_requestType != HelpRequestType.me) ...[
-                TextFormField(
-                  controller: _detailsController,
-                  decoration: InputDecoration(
-                    // labelText: 'Additional Details',
-                    labelText: LanguageController.get('additional_details'),
-
-                    hintText: _requestType == HelpRequestType.familyMember
-                       // ? 'Describe what happened to your family member...'
-                       // : 'Describe the situation...',
-                      ? LanguageController.get('describe_family_member')
-                      : LanguageController.get('describe_situation'),
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                ),
-                SizedBox(height: 16),
-
-                // Photo taking section (placeholder for now)
-                if (widget.isOnline) ...[
-                  ElevatedButton.icon(
-                    onPressed: _takePicture,
-                    icon: Icon(Icons.camera_alt),
-                    label: Text(
-                        _imagePath == null
-                            ? LanguageController.get('take_photo')
-                            : LanguageController.get('photo_taken')
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _imagePath == null ? null : Colors.green,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                ],
-              ],
-
-              // Location field
-              // Location field
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(8, 0, 24, 10),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // App Bar Content
                     Row(
                       children: [
-                        Icon(Icons.location_on, color: Colors.blue),
-                        SizedBox(width: 8),
-                        Text(
-                          LanguageController.get('location') ?? 'Location',
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        Spacer(),
-                        if (_isGettingLocation)
-                          SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        else
-                          IconButton(
-                            icon: Icon(Icons.refresh, size: 20),
-                            onPressed: _getCurrentLocation,
-                            tooltip: 'Refresh location',
+                       IconButton(
+                         padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            icon: Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
+
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            _getServiceName(),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                widget.isOnline ? Icons.wifi : Icons.wifi_off,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                widget.isOnline ? 'Online' : 'Offline',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    SizedBox(height: 8),
-                    // In your build method, replace the location display part with:
-                    if (_locationError != null)
-                      Text(
-                        _locationError!,
-                        style: TextStyle(color: Colors.red, fontSize: 12),
-                      )
-                    else if (_latitude != null && _longitude != null) ...[
-                      Text(
-                        'Lat: ${_latitude!.toStringAsFixed(6)}, Lng: ${_longitude!.toStringAsFixed(6)}',
-                        style: TextStyle(color: Colors.green, fontSize: 12),
-                      ),
-                      if (_decodedAddress != null) ...[
-                        SizedBox(height: 4),
-                        Text(
-                          _decodedAddress!,
-                          style: TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.w500),
+                    SizedBox(height: 12),
+
+                    // Hero Section
+                    Row(
+                      children: [
+                        SizedBox(width: 16),
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Icon(
+                            _getServiceIcon(),
+                            color: Colors.white,
+                            size: 48,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                LanguageController.get('emergency_request') ?? 'Emergency Request',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                LanguageController.get('provide_details') ?? 'Please provide details about the emergency',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.9),
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    ] else
-                      Text(
-                        'Getting current location...',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    SizedBox(height: 8),
-                    TextFormField(
-                      controller: _locationController,
-                      decoration: InputDecoration(
-                        hintText: 'Additional location details (optional)',
-                        border: OutlineInputBorder(),
-                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 32),
-
-              // Submit buttons
-              if (widget.isOnline)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _canSubmitRequest() && !_isLoading ? _sendOnlineRequest : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: _isLoading
-                        ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        SizedBox(width: 8),
-                        //Text('Sending Emergency Request...'),
-                        Text(LanguageController.get('sending_emergency_request')),
-                      ],
-                    ) : Text(
-                        //'Send Emergency Request',
-                        LanguageController.get('send_emergency_request'),
-                        style: TextStyle(fontSize: 16)
-                        ),
-                  ),
-                )
-              else
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _canSubmitRequest() ? _sendOfflineRequest : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.sms),
-                        SizedBox(width: 8),
-                        Text('Send via SMS', style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
+
+          // Offline Warning Banner
+          if (!widget.isOnline)
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(20),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange[300]!),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.sms,
+                      color: Colors.orange[700],
+                      size: 20,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LanguageController.get('offline_mode') ?? 'Offline Mode',
+                          style: TextStyle(
+                            color: Colors.orange[800],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          LanguageController.get('sms_only') ?? 'Emergency request will be sent via SMS',
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Main Content
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Who needs help section
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.help_outline,
+                                  color: Colors.blue[600],
+                                  size: 20,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                LanguageController.get('who_needs_help') ?? 'Who needs help?',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+
+                          // Request type selection
+                          _buildRequestTypeCard(
+                            HelpRequestType.me,
+                            Icons.person,
+                            LanguageController.get('me') ?? 'Me',
+                            LanguageController.get('i_need_help') ?? 'I need help',
+                          ),
+                          SizedBox(height: 12),
+                          _buildRequestTypeCard(
+                            HelpRequestType.other,
+                            Icons.person_outline,
+                            LanguageController.get('other_person') ?? 'Other Person',
+                            LanguageController.get('someone_else_needs_help') ?? 'Someone else needs help',
+                          ),
+                          SizedBox(height: 12),
+                          _buildRequestTypeCard(
+                            HelpRequestType.familyMember,
+                            Icons.family_restroom,
+                            LanguageController.get('family_member') ?? 'Family Member',
+                            LanguageController.get('family_member_needs_help') ?? 'My family member needs help',
+                            enabled: _familyMembers.isNotEmpty,
+                            trailing: _loadingFamilyMembers
+                                ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Family member selection
+                    if (_requestType == HelpRequestType.familyMember) ...[
+                      SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.family_restroom,
+                                    color: Colors.purple[600],
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  LanguageController.get('select_family_member') ?? 'Select Family Member',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+                            if (_familyMembers.isEmpty)
+                              Container(
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.orange.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.info_outline, color: Colors.orange),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        LanguageController.get('no_family_members_found') ?? 'No family members found.',
+                                        style: TextStyle(color: Colors.orange.shade800),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else
+                              DropdownButtonFormField<FamilyMember>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                ),
+                                value: _selectedFamilyMember,
+                                hint: Text(LanguageController.get('choose_family_member') ?? 'Choose family member'),
+                                items: _familyMembers.map((member) {
+                                  return DropdownMenuItem<FamilyMember>(
+                                    value: member,
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor: Colors.blue[100],
+                                          child: Text(
+                                            member.name[0].toUpperCase(),
+                                            style: TextStyle(
+                                              color: Colors.blue[700],
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              member.name,
+                                              style: TextStyle(fontWeight: FontWeight.w500),
+                                            ),
+                                            Text(
+                                              member.relation,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (FamilyMember? newValue) {
+                                  setState(() => _selectedFamilyMember = newValue);
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Additional details section
+                    if (_requestType != HelpRequestType.me) ...[
+                      SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.description,
+                                    color: Colors.green[600],
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  LanguageController.get('additional_details') ?? 'Additional Details',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+                            TextFormField(
+                              controller: _detailsController,
+                              decoration: InputDecoration(
+                                hintText: _requestType == HelpRequestType.familyMember
+                                    ? LanguageController.get('describe_family_member') ?? 'Describe what happened to your family member...'
+                                    : LanguageController.get('describe_situation') ?? 'Describe the situation...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[50],
+                              ),
+                              maxLines: 4,
+                            ),
+                            if (widget.isOnline) ...[
+                              SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: _takePicture,
+                                  icon: Icon(_imagePath == null ? Icons.camera_alt : Icons.check_circle),
+                                  label: Text(
+                                    _imagePath == null
+                                        ? LanguageController.get('take_photo') ?? 'Take Photo'
+                                        : LanguageController.get('photo_taken') ?? 'Photo Taken',
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _imagePath == null ? Colors.grey[600] : Colors.green,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Location section
+                    SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.location_on,
+                                  color: Colors.red[600],
+                                  size: 20,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                LanguageController.get('location') ?? 'Location',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              Spacer(),
+                              if (_isGettingLocation)
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              else
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: IconButton(
+                                    icon: Icon(Icons.refresh, color: Colors.blue[600], size: 18),
+                                    onPressed: _getCurrentLocation,
+                                    tooltip: 'Refresh location',
+                                  ),
+                                ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+
+                          // Location status
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: _locationError != null ? Colors.red[50] : Colors.green[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: _locationError != null ? Colors.red[200]! : Colors.green[200]!,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _locationError != null ? Icons.error_outline : Icons.check_circle_outline,
+                                  color: _locationError != null ? Colors.red[600] : Colors.green[600],
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (_locationError != null)
+                                        Text(
+                                          _locationError!,
+                                          style: TextStyle(color: Colors.red[700], fontSize: 12),
+                                        )
+                                      else if (_latitude != null && _longitude != null) ...[
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Location acquired:',
+                                              style: TextStyle(
+                                                color: Colors.green[700],
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            SizedBox(width: 2), // spacing
+                                            Text(
+                                              'Lat: ${_latitude!.toStringAsFixed(4)}, Lng: ${_longitude!.toStringAsFixed(4)}',
+                                              style: TextStyle(color: Colors.green[600], fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+
+
+                                        if (_decodedAddress != null) ...[
+                                          SizedBox(height: 4),
+                                          Text(
+                                            _decodedAddress!,
+                                            style: TextStyle(
+                                              color: Colors.grey[700],
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ] else
+                                        Text(
+                                          'Getting current location...',
+                                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _locationController,
+                            decoration: InputDecoration(
+                              hintText: 'Additional location details (optional)',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[50],
+                              prefixIcon: Icon(Icons.edit_location),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 32),
+
+                    // Submit button
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _canSubmitRequest() && !_isLoading
+                            ? (widget.isOnline ? _sendOnlineRequest : _sendOfflineRequest)
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.isOnline ? Colors.red[600] : Colors.orange[600],
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: _canSubmitRequest() && !_isLoading ? 2 : 0,
+                        ),
+                        child: _isLoading
+                            ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              LanguageController.get('sending_emergency_request') ?? 'Sending Emergency Request...',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )
+                            : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(widget.isOnline ? Icons.emergency : Icons.sms),
+                            SizedBox(width: 8),
+                            Text(
+                              widget.isOnline
+                                  ? (LanguageController.get('send_emergency_request') ?? 'Send Emergency Request')
+                                  : 'Send via SMS',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -492,6 +896,107 @@ class _RequestHelpScreenState extends State<RequestHelpScreen> {
       SnackBar(
         content: Text('Photo feature will be implemented soon'),
         backgroundColor: Colors.blue,
+      ),
+    );
+  }
+
+
+  IconData _getServiceIcon() {
+    switch (widget.type) {
+      case EmergencyType.ambulance:
+        return Icons.local_hospital;
+      case EmergencyType.fire:
+        return Icons.local_fire_department;
+      case EmergencyType.police:
+        return Icons.local_police;
+      case EmergencyType.car_accident:
+        return Icons.car_crash;
+      case EmergencyType.others:
+        return Icons.more_horiz;
+    }
+  }
+
+  Widget _buildRequestTypeCard(
+      HelpRequestType type,
+      IconData icon,
+      String title,
+      String subtitle, {
+        bool enabled = true,
+        Widget? trailing,
+      }) {
+    final isSelected = _requestType == type;
+    return GestureDetector(
+      onTap: enabled ? () {
+        setState(() {
+          _requestType = type;
+          if (type != HelpRequestType.familyMember) {
+            _selectedFamilyMember = null;
+          }
+        });
+      } : null,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: enabled ? (isSelected ? Colors.blue[50] : Colors.grey[50]) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: enabled ? (isSelected ? Colors.blue[300]! : Colors.grey[200]!) : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: enabled ? (isSelected ? Colors.blue[100] : Colors.grey[200]) : Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: enabled ? (isSelected ? Colors.blue[600] : Colors.grey[600]) : Colors.grey[400],
+                size: 20,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: enabled ? (isSelected ? Colors.blue[700] : Colors.grey[800]) : Colors.grey[400],
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: enabled ? (isSelected ? Colors.blue[600] : Colors.grey[600]) : Colors.grey[400],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (trailing != null) trailing,
+            if (isSelected)
+              Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.blue[600],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

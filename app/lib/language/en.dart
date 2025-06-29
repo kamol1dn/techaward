@@ -2,7 +2,7 @@ final Map<String, String> en = {
   'help_tutorial': 'Help & Tutorials',
 
   // splash screen
-  'emergency_services': 'Emergency Services',
+  'emergency_services': '84U.uz - Aid For You',
   'login_register': 'Login / Register',
   'quick_numbers': 'Quick Numbers / Tutorials',
   'en': '🇺🇸 English',
@@ -35,7 +35,12 @@ final Map<String, String> en = {
   'tap_to_continue': 'Tap to continue',
   'car_accident': 'Car Accident',
   'car_crash_emergency': 'When you encounter car accidents',
+
+
+
+
   //emergency request screen
+
   'type_ambulance': 'Ambulance help',
   'type_fire': 'Fire emergency help',
   'type_police': 'Police help',
@@ -45,6 +50,7 @@ final Map<String, String> en = {
   'me': 'Me',
   'other_person': 'Other person',
 
+  'provide_details': 'Please provide details about the emergency',
   'family_member': 'Family Member',
   'additional_details': 'Additional Details',
   'location': 'Location',
@@ -61,6 +67,14 @@ final Map<String, String> en = {
   'photo_taken': 'Photo Taken',
   'hint_current_location': 'Current location will be used if empty',
   'send_via_sms': 'Send via SMS',
+  'emergency_request':'Emergency Request',
+  'i_need_help': 'I need help',
+  'someone_else_needs_help': 'Someone else needs help',
+  'family_member_needs_help': 'My family member needs help',
+
+
+
+
 
 
 
