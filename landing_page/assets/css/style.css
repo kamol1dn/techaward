@@ -12,6 +12,7 @@
 	--stat-bg: rgba(220, 53, 69, 0.05);
 	--feature-icon: #dc3545;
 	--phone-bg: #ffffff;
+	--header-scrolled-bg: rgba(245, 245, 245, 0.8);
 }
 
 /* Dark Mode Variables */
@@ -26,6 +27,7 @@
 	--stat-bg: rgba(220, 53, 69, 0.1);
 	--feature-icon: #dc3545;
 	--phone-bg: #2a2a2a;
+	--header-scrolled-bg: rgba(26, 26, 26, 0.8);
 }
 
 /* Base Styles */
@@ -53,17 +55,29 @@ body {
 .header {
 	padding: 20px 0;
 	background: var(--header-bg);
-	backdrop-filter: blur(10px);
+	backdrop-filter: blur(50px);
 	position: fixed;
 	width: 100%;
 	top: 0;
+	left: 0;
+	right: 0;
 	z-index: 1000;
 	transition: all 0.3s ease;
 	border-bottom: 1px solid var(--border);
+	height: 70px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .header.scrolled {
 	box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+	top: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 95%;
+	border-radius: 20px;
+	background-color: var(--header-scrolled-bg);
 }
 
 .nav {
@@ -81,7 +95,7 @@ body {
 }
 
 .logo img {
-	width: 60%;
+	width: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -139,6 +153,11 @@ body {
 	align-items: center;
 	gap: 8px;
 	transition: all 0.3s ease;
+}
+
+.language-btn i {
+	font-size: 1.2rem;
+	color: var(--primary);
 }
 
 .language-btn:hover,
@@ -233,7 +252,8 @@ body {
 
 .hero-text h1 .highlight {
 	color: var(--primary);
-	text-shadow: 0 0 20px rgba(220, 53, 69, 0.8);
+	text-shadow: 0 0 20px rgba(220, 53, 70, 0.59);
+	-webkit-text-stroke: 0.5px rgb(0, 0, 0);
 }
 
 .hero-text p {
@@ -259,11 +279,23 @@ body {
 	cursor: pointer;
 	transition: all 0.3s ease;
 	text-decoration: none;
-	display: inline-flex;
+	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 10px;
 	position: relative;
 	overflow: hidden;
+}
+
+.btn span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+.btn i {
+	font-size: 2rem;
 }
 
 .btn-primary {
@@ -307,18 +339,19 @@ body {
 	display: flex;
 	justify-content: center;
 	animation: slideInRight 1s ease-out 0.6s both;
+	background-color: transparent;
 }
 
 .phone-mockup {
-	width: 300px;
-	height: 600px;
-	background: var(--phone-bg);
-	border-radius: 30px;
-	padding: 20px;
-	box-shadow: 0 20px 40px var(--shadow);
-	position: relative;
-	overflow: hidden;
-	border: 2px solid var(--primary);
+	max-width: 500px;
+	width: 100%;
+	height: auto;
+}
+
+.phone-mockup img {
+	width: 100%;
+	height: auto;
+	border-radius: 20px;
 }
 
 .phone-screen {
@@ -461,6 +494,11 @@ body {
 	position: relative;
 	overflow: hidden;
 	box-shadow: 0 5px 15px var(--shadow);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	text-align: center;
 }
 
 .feature-card:hover {
@@ -637,10 +675,15 @@ body {
 	grid-template-columns: 1fr 1fr;
 	gap: 60px;
 	align-items: center;
+	background-color: #1a1a1a;
+	border-radius: 25px;
+	padding: 40px;
+	box-shadow: 0 10px 30px rgba(220, 53, 69, 0.1);
+	max-width: 150%;
 }
 
 .cta-text {
-	text-align: center;
+	text-align: start;
 }
 
 .cta-text h2 {
@@ -659,7 +702,7 @@ body {
 .cta-buttons {
 	display: flex;
 	gap: 20px;
-	justify-content: center;
+	justify-content: flex-start;
 }
 
 .phone-animation {
@@ -669,30 +712,22 @@ body {
 }
 
 .animated-phone {
-	width: 150px;
-	height: 300px;
-	background: var(--phone-bg);
-	border-radius: 20px;
-	padding: 10px;
-	border: 2px solid var(--primary);
+	max-width: 500px;
+	width: 100%;
+	height: auto;
 	position: relative;
 	animation: float 3s ease-in-out infinite;
-	box-shadow: 0 5px 15px var(--shadow);
+}
+
+.animated-phone img {
+	width: 100%;
+	height: 100%;
+	border-radius: 15px;
+	object-fit: cover;
 }
 
 .animated-phone:nth-child(2) {
 	animation-delay: 1.5s;
-}
-
-@keyframes float {
-	0%,
-	100% {
-		transform: translateY(0px);
-	}
-
-	50% {
-		transform: translateY(-10px);
-	}
 }
 
 .animated-screen {
@@ -710,7 +745,7 @@ body {
 
 /* Footer */
 .footer {
-	background: var(--card-bg);
+	background: var(--header-bg);
 	padding: 50px 0 20px;
 	text-align: center;
 	border-top: 1px solid var(--border);
@@ -734,10 +769,27 @@ body {
 	color: var(--text-light);
 	text-decoration: none;
 	line-height: 1.6;
+	align-items: start;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	text-align: center;
+}
+
+.footer-section a i {
+	font-size: 1.5rem;
+	color: var(--primary);
 }
 
 .footer-section a:hover {
 	color: var(--primary);
+}
+
+.footer-section {
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	gap: 10px;
 }
 
 .footer-bottom {

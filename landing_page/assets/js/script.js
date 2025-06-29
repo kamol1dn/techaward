@@ -65,9 +65,15 @@ languageBtns.forEach(btn => {
 
 		// Update language button text
 		const languageBtn = document.querySelector('.language-btn')
-		if (lang === 'en') languageBtn.innerHTML = '🌐 English'
-		if (lang === 'uz') languageBtn.innerHTML = "🌐 O'zbekcha"
-		if (lang === 'ru') languageBtn.innerHTML = '🌐 Русский'
+		if (lang === 'en')
+			languageBtn.innerHTML =
+				'<i class="fa-solid fa-earth-americas"></i> English'
+		if (lang === 'uz')
+			languageBtn.innerHTML =
+				'<i class="fa-solid fa-earth-americas"></i> O`zbekcha'
+		if (lang === 'ru')
+			languageBtn.innerHTML =
+				'<i class="fa-solid fa-earth-americas"></i> Русский'
 	})
 })
 
